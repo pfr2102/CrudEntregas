@@ -1,8 +1,5 @@
-# React + Vite
+# React + Vite (CRUD DE ENTREGAS)
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+sistema de manejo de envios en una plataforma ecommerce para la logistica de envio y devoluciones de prodictos
 
-Currently, two official plugins are available:
-
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+api necesario (https://github.com/pfr2102/ApiRest_Entregas.git)
