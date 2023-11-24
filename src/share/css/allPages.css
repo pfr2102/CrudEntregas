@@ -1,0 +1,78 @@
+/* Reset de márgenes y relleno por defecto */
+html, body {
+  margin: 0;
+  padding: 0;
+}
+
+/* Contenedor principal */
+#root {
+  display: flex;
+  min-height: 100vh; /* Al menos el 100% de la altura visible */
+}
+
+/* Contenedor de la aplicación */
+#div-app {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  border-radius: 20px;
+  padding: 1rem;
+  background-color: #2bee04;
+}
+
+/* Contenedor del pie de página */
+#div-footer {
+  flex-shrink: 0;
+  background-color: #42f486;
+}
+
+/* Contenedor de la página principal */
+#div-home {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  border-radius: 20px;
+  margin-top: 1rem; /* Espaciado superior */
+  padding: 1rem;
+  background-color: #eeb004;
+}
+
+/* Contenedor del módulo */
+#div-module {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  border-radius: 20px;
+  margin-top: 1rem; /* Espaciado superior */
+  padding: 1rem;
+  background-color: #0490ee;
+}
+
+/* Detalles flexibles */
+#detail {
+  flex: 1;
+  padding: 1rem;
+}
+
+#detail.loading {
+  opacity: 0.25;
+  transition: opacity 200ms;
+  transition-delay: 200ms;
+}
+
+/* Estilos de tabla */
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+}
+
+.table th, .table td {
+  border: 1px solid #ddd;
+  padding: 8px;
+  text-align: left;
+}
+
+.table th {
+  background-color: #f2f2f2;
+}
