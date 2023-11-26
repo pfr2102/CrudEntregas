@@ -53,6 +53,16 @@ const ShippingsColumns = [
       fetchData();
     }, []);
 
+    //PARA LA FUNCIÓN onUpdateShippingsData en AddShippingsModal.jsx
+    const handleUpdateShippingData = async () => {
+      try {
+          const updatedShippingsData = await getAllShippings();
+          setShippingsData(updatedShippingsData);
+      } catch (error) {
+          console.error("Error updating shipping data:", error);
+      }
+    };
+
     return (
         <Box>
           <Box>
@@ -100,6 +110,7 @@ const ShippingsColumns = [
             <AddShippingsModal
               AddShippingShowModal={AddShippingShowModal}
               setAddShippingShowModal={setAddShippingShowModal}
+              onUpdateShippingData={handleUpdateShippingData} //PARTE DE LA FUNCION handleUpdateShippingData
               onClose={() => setAddShippingShowModal(false)}
             />
           </Dialog>

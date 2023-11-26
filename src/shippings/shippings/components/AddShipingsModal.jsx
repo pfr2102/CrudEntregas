@@ -15,7 +15,7 @@ import { ShippingValues } from "../helpers/ShippingsValues";
 //FEAK: Services
 import { AddOneShipping } from "../services/remote/post/AddOneShipping";
 
-const AddShippingModal = ({ AddShippingShowModal, setAddShippingShowModal}) => {
+const AddShippingModal = ({ AddShippingShowModal, setAddShippingShowModal, onUpdateShippingData}) => {
     const [mensajeErrorAlert, setMensajeErrorAlert] = useState("");
     const [mensajeExitoAlert, setMensajeExitoAlert] = useState("");
     
@@ -63,6 +63,8 @@ const AddShippingModal = ({ AddShippingShowModal, setAddShippingShowModal}) => {
                 //FIC: falta actualizar el estado actual (documentos/data) para que
                 //despues de insertar el nuevo envio se visualice en la tabla,
                 //pero esto se hara en la siguiente nota.
+                //PARA VOLVER A LLAMAR A LA FUNCIÓN PARA QUE SE MUESTRE EL NUEVO DATO GUARDADO EN LA TABLA
+                onUpdateShippingData();
             } catch (e) {
                 setMensajeExitoAlert(null);
                 setMensajeErrorAlert("No se pudo crear el Envío");
