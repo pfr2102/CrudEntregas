@@ -15,7 +15,7 @@ import { ShippingValues } from "../helpers/ShippingsValues";
 //FEAK: Services
 import { AddOneShipping } from "../services/remote/post/AddOneShipping";
 
-const AddShippingModal = ({ AddShippingShowModal, setAddShippingShowModal, onUpdateShippingData}) => {
+const AddShippingModal = ({ AddShippingShowModal, setAddShippingShowModal, onUpdateShippingData, isEditMode, initialData }) => {
     const [mensajeErrorAlert, setMensajeErrorAlert] = useState("");
     const [mensajeExitoAlert, setMensajeExitoAlert] = useState("");
     
@@ -91,7 +91,7 @@ const AddShippingModal = ({ AddShippingShowModal, setAddShippingShowModal, onUpd
                 {/* FIC: Aqui va el Titulo de la Modal */}
                 <DialogTitle>
                     <Typography component="h6">
-                        <strong>Agregar Nuevo Envio</strong>
+                        <strong>{isEditMode ? "Actualizar Envío" : "Agregar Nuevo Envío"}</strong>
                     </Typography>
                 </DialogTitle>
                 {/* FIC: Aqui va un tipo de control por cada Propiedad de Shippings */}
@@ -153,7 +153,7 @@ const AddShippingModal = ({ AddShippingShowModal, setAddShippingShowModal, onUpd
                     >
                         <span>CERRAR</span>
                     </LoadingButton>
-                    {/* FIC: Boton de Guardar. */}
+                    {/* FIC: Boton de Guardar o actualizar segun el modo. */}
                     <LoadingButton
                         color="primary"
                         loadingPosition="start"
@@ -162,7 +162,7 @@ const AddShippingModal = ({ AddShippingShowModal, setAddShippingShowModal, onUpd
                         type="submit"
                         disabled={!!mensajeExitoAlert}
                     >
-                        <span>GUARDAR</span>
+                        <span>{isEditMode ? "ACTUALIZAR" : "GUARDAR"}</span>
                     </LoadingButton>
                 </DialogActions>
             </form>

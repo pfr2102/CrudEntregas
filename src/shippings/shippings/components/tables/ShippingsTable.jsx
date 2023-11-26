@@ -39,6 +39,10 @@ const ShippingsColumns = [
     //FIC: controlar el estado que muesta u oculta la modal de nuevo Instituto.
     const [AddShippingShowModal, setAddShippingShowModal] = useState(false);
 
+    //PARA CONTROLAR LO DE GUARDAR O ACTUALIZAR
+    const [isEditMode, setIsEditMode] = useState(false);
+    const [editData, setEditData] = useState(false);
+
     useEffect(() => {
       async function fetchData() {
         try {
@@ -52,6 +56,31 @@ const ShippingsColumns = [
       }
       fetchData();
     }, []);
+
+    const handleRowClick = (row) => {
+      //Aqui es donde se decide que hacer con la data que regresa el clic en la fila
+      console.log("Clicked row data:", row);
+      //Poner el modo de editar y pasar la data
+      setAddShippingShowModal(true);
+      setIsEditMode(true);
+      setEditData(true);
+    };
+
+    //Al parecer MaterialReactTable no soporta directamente onRowClick por lo que se hace el useState con un querySelector
+    //que se le coloca a cada fila junto con un EventListener
+    useEffect(() => {
+      const rows = document.querySelectorAll('.MuiTableRow-root');
+  
+      rows.forEach((row, index) => {
+        row.addEventListener('click', () => handleRowClick(shippingsData[index-1])); //Aqui es index-1 porque index me traía la fila siguiente a la que presionabas
+      });
+
+      return () => {
+        rows.forEach((row) => {
+          row.removeEventListener('click', () => handleRowClick(shippingsData[index-1]));
+        });
+      };
+    }, [shippingsData]);
 
     //PARA LA FUNCIÓN onUpdateShippingsData en AddShippingsModal.jsx
     const handleUpdateShippingData = async () => {
@@ -111,7 +140,13 @@ const ShippingsColumns = [
               AddShippingShowModal={AddShippingShowModal}
               setAddShippingShowModal={setAddShippingShowModal}
               onUpdateShippingData={handleUpdateShippingData} //PARTE DE LA FUNCION handleUpdateShippingData
-              onClose={() => setAddShippingShowModal(false)}
+              isEditMode={isEditMode}
+              initialData={editData}
+              onClose={() => {
+                setAddShippingShowModal(false)
+                setIsEditMode(false); //Resetear el modo de edición
+                setEditData(null); //Limpiar la data de edición
+              }}
             />
           </Dialog>
 
