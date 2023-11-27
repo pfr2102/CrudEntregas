@@ -60,8 +60,8 @@ const ShippingsColumns = [
 
     const handleRowClick = (row) => {
       //Aqui es donde se decide que hacer con la data que regresa el clic en la fila
-      console.log("Clicked row data:", row);
-      //Poner el modo de editar y pasar la data
+      console.log("Clicked row data:", row.id_ordenOK); //row.id_domicilioOK devuelve solo el id, debe funcionar con todo lo demas
+      //Poner el modo de editar y pasar la data               por lo que se puede usar formik??? para colocar la data en los textfield
       setAddShippingShowModal(true);
       setModalMode("edit");
       setIsEditMode(true);
@@ -111,7 +111,7 @@ const ShippingsColumns = [
                         <IconButton 
                         onClick={() => {
                           setAddShippingShowModal(true);
-                          setModalMode("add");
+                          setModalMode("add"); //Para cambiar al modo de agregar cuando se dé clic al boton
                           setIsEditMode(false);
                           setEditData(null);
                           }}>
@@ -149,6 +149,7 @@ const ShippingsColumns = [
               onUpdateShippingData={handleUpdateShippingData} //PARTE DE LA FUNCION handleUpdateShippingData
               isEditMode={modalMode === "edit"}
               initialData={modalMode === "edit" ? editData : null}
+              row={modalMode === "edit" ? editData : null}  //Pasamos la fila como prop al archivo AddShippingsModal.jsx
               onClose={() => {
                 setAddShippingShowModal(false)
                 setIsEditMode(false); //Resetear el modo de edición

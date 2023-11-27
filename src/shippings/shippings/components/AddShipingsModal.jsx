@@ -15,16 +15,16 @@ import { ShippingValues } from "../helpers/ShippingsValues";
 //FEAK: Services
 import { AddOneShipping } from "../services/remote/post/AddOneShipping";
 
-const AddShippingModal = ({ AddShippingShowModal, setAddShippingShowModal, onUpdateShippingData, isEditMode, setIsEditMode, initialData }) => {
+const AddShippingModal = ({ AddShippingShowModal, setAddShippingShowModal, onUpdateShippingData, isEditMode, setIsEditMode, initialData, row }) => {
     const [mensajeErrorAlert, setMensajeErrorAlert] = useState("");
     const [mensajeExitoAlert, setMensajeExitoAlert] = useState("");
     
     //FIC: Definition Formik y Yup.
     const formik = useFormik({
         initialValues: {
-            id_ordenOK: "",
-            id_domicilioOK: "",
-            id_proveedorOK: "",
+            id_ordenOK: row ? row.id_ordenOK : "", // Usa los datos de "row" si están disponibles
+            id_domicilioOK: row ? row.id_domicilioOK : "",
+            id_proveedorOK: row ? row.id_proveedorOK : "",
         },
         validationSchema: Yup.object({
             id_ordenOK: Yup.string()
