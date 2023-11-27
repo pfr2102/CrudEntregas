@@ -42,6 +42,7 @@ const ShippingsColumns = [
     //PARA CONTROLAR LO DE GUARDAR O ACTUALIZAR
     const [isEditMode, setIsEditMode] = useState(false);
     const [editData, setEditData] = useState(false);
+    const [modalMode, setModalMode] = useState("add"); //Puede ser add o edit
 
     useEffect(() => {
       async function fetchData() {
@@ -62,8 +63,9 @@ const ShippingsColumns = [
       console.log("Clicked row data:", row);
       //Poner el modo de editar y pasar la data
       setAddShippingShowModal(true);
+      setModalMode("edit");
       setIsEditMode(true);
-      setEditData(true);
+      setEditData(row);
     };
 
     //Al parecer MaterialReactTable no soporta directamente onRowClick por lo que se hace el useState con un querySelector
@@ -107,7 +109,12 @@ const ShippingsColumns = [
                     <Box>
                       <Tooltip title="Agregar">
                         <IconButton 
-                        onClick={() => setAddShippingShowModal(true)}>
+                        onClick={() => {
+                          setAddShippingShowModal(true);
+                          setModalMode("add");
+                          setIsEditMode(false);
+                          setEditData(null);
+                          }}>
                           <AddCircleIcon />
                         </IconButton>
                       </Tooltip>
@@ -140,8 +147,8 @@ const ShippingsColumns = [
               AddShippingShowModal={AddShippingShowModal}
               setAddShippingShowModal={setAddShippingShowModal}
               onUpdateShippingData={handleUpdateShippingData} //PARTE DE LA FUNCION handleUpdateShippingData
-              isEditMode={isEditMode}
-              initialData={editData}
+              isEditMode={modalMode === "edit"}
+              initialData={modalMode === "edit" ? editData : null}
               onClose={() => {
                 setAddShippingShowModal(false)
                 setIsEditMode(false); //Resetear el modo de edición
