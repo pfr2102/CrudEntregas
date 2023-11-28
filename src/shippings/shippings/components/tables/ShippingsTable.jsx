@@ -42,6 +42,7 @@ const ShippingsColumns = [
     //PARA CONTROLAR LO DE GUARDAR O ACTUALIZAR
     const [isEditMode, setIsEditMode] = useState(false); //Para determinar si la modal está en modo de edicion/agregar (true=editar || false=agregar)
     const [editData, setEditData] = useState(false);     //Para saber si hay que rellenar los textfield con datos en caso de estar en modo de edición
+    const [isDeleteMode, setIsDeleteMode] = useState(false); //Para saber si está en modo de eliminación o no
 
     useEffect(() => {
       async function fetchData() {
@@ -113,17 +114,25 @@ const ShippingsColumns = [
                           setAddShippingShowModal(true);
                           setIsEditMode(false); //Poner modo de edición en falso porque vamos a agregar no editar
                           setEditData(null); //Poner la edición de data en nulo porque no tiene que haber nada en los textfield
+                          setIsDeleteMode(false);
                           }}>
                           <AddCircleIcon />
                         </IconButton>
                       </Tooltip>
                       <Tooltip title="Editar">
-                        <IconButton onClick={() => setAddShippingShowModal(true)}> {/*Para que se abra la modal de actualizar SOLO despues de dar clic al boton */}
+                        <IconButton onClick={() => {
+                          setAddShippingShowModal(true);
+                          setIsDeleteMode(false);
+                          }}> {/*Para que se abra la modal de actualizar SOLO despues de dar clic al boton */}
                           <EditIcon />
                         </IconButton>
                       </Tooltip>
                       <Tooltip title="Eliminar">
-                        <IconButton>
+                        <IconButton onClick={() => {
+                          setIsDeleteMode(true);
+                          setIsEditMode(false);
+                          setAddShippingShowModal(true);
+                          }}>
                           <DeleteIcon />
                         </IconButton>
                       </Tooltip>
@@ -147,8 +156,9 @@ const ShippingsColumns = [
               setAddShippingShowModal={setAddShippingShowModal}
               onUpdateShippingData={handleUpdateShippingData} //PARTE DE LA FUNCION handleUpdateShippingData
               isEditMode={isEditMode}
-              initialData={isEditMode ? editData : null}
-              row={isEditMode ? editData : null}
+              isDeleteMode={isDeleteMode}
+              initialData={isEditMode || isDeleteMode ? editData : null} //Para que en ambos modales de eliminar y 
+              row={isEditMode || isDeleteMode ? editData : null}         //actualizar se ponga la info si es que hay
               onClose={() => {
                 setAddShippingShowModal(false);
                 setIsEditMode(false); //Resetear el modo de edición

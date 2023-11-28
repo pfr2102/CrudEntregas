@@ -15,10 +15,13 @@ import { ShippingValues } from "../helpers/ShippingsValues";
 //FEAK: Services
 import { AddOneShipping } from "../services/remote/post/AddOneShipping";
 import { UpdateOneShipping } from "../services/remote/put/UpdateOneShipping";
+import { DeleteOneShipping } from "../services/remote/del/DeleteOneShipping"; 
 
-const AddShippingModal = ({ AddShippingShowModal, setAddShippingShowModal, onUpdateShippingData, isEditMode, setIsEditMode, initialData, row }) => {
+const AddShippingModal = ({ AddShippingShowModal, setAddShippingShowModal, onUpdateShippingData, isEditMode, isDeleteMode, row }) => {
     const [mensajeErrorAlert, setMensajeErrorAlert] = useState("");
     const [mensajeExitoAlert, setMensajeExitoAlert] = useState("");
+    console.log("MODO DE BORRAR ES:",isDeleteMode);
+    console.log("MODO DE ACTUALIZAR ES:",isEditMode);
     
     //FIC: Definition Formik y Yup.
     const formik = useFormik({
@@ -45,12 +48,22 @@ const AddShippingModal = ({ AddShippingShowModal, setAddShippingShowModal, onUpd
                 //Si la modal esta en modo de edición (osease en actualizar, PUT pues) pues se ejecuta la primera condición que es para
                 //actualizar
                 if(isEditMode) {
+                    console.log("SE ESTA ACTUALIZANDO RAAAAAAAAAH");
                     const Shipping = ShippingValues(values);
                     console.log("<<Shipping>>", Shipping);
                     // console.log("LA ID QUE SE PASA COMO PARAMETRO ES:", row._id);
                     // Utiliza la función de actualización si estamos en modo de edición
                     await UpdateOneShipping(Shipping, row ? row.id_ordenOK : null); //se puede sacar el objectid con row._id para lo del fic aaaaaaaaaaaaaaaaaaa
                     setMensajeExitoAlert("Envío actualizado Correctamente");
+                    onUpdateShippingData(); //usar la función para volver a cargar los datos de la tabla y que se vea la actualizada
+                }else if(isDeleteMode){
+                    console.log("SE ESTA ELIMINANDO RAAAAAAAAAH");
+                    const Shipping = ShippingValues(values);
+                    console.log("<<Shipping>>", Shipping);
+                    // console.log("LA ID QUE SE PASA COMO PARAMETRO ES:", row._id);
+                    // Utiliza la función de eliminar si estamos en modo de eliminación
+                    await DeleteOneShipping(row.id_ordenOK);
+                    setMensajeExitoAlert("Envío eliminado Correctamente");
                     onUpdateShippingData(); //usar la función para volver a cargar los datos de la tabla y que se vea la actualizada
                 }else{
                     //FIC: si fuera necesario meterle valores compuestos o no compuestos
@@ -83,7 +96,9 @@ const AddShippingModal = ({ AddShippingShowModal, setAddShippingShowModal, onUpd
                 }
             } catch (e) {
                 setMensajeExitoAlert(null);
-                setMensajeErrorAlert(isEditMode ? "No se pudo actualizar el envío" : "No se pudo crear el envío"); //operador ternario para mostrar mensaje de error correspondiente
+                setMensajeErrorAlert(isEditMode ? "No se pudo actualizar el envío" : 
+                                     isDeleteMode ? "No se pudo eliminar el envío" : 
+                                     "No se pudo guardar el envío"); //operador ternario para mostrar mensaje de error correspondiente
             }
         },
     });
@@ -118,7 +133,7 @@ const AddShippingModal = ({ AddShippingShowModal, setAddShippingShowModal, onUpd
                 {/* FIC: Aqui va el Titulo de la Modal */}
                 <DialogTitle>
                     <Typography component="h6">
-                        <strong>{isEditMode ? "Actualizar Envío" : "Agregar Nuevo Envío"}</strong>
+                        <strong>{isEditMode ? "ACTUALIZAR ENVÍO" : isDeleteMode ? "ELIMINAR ENVÍO" : "AGREGAR ENVÍO"}</strong>
                     </Typography>
                 </DialogTitle>
                 {/* FIC: Aqui va un tipo de control por cada Propiedad de Shippings */}
@@ -134,7 +149,8 @@ const AddShippingModal = ({ AddShippingShowModal, setAddShippingShowModal, onUpd
                         {...commonTextFieldProps}
                         error={ formik.touched.id_ordenOK && Boolean(formik.errors.id_ordenOK) }
                         helperText={ formik.touched.id_ordenOK && formik.errors.id_ordenOK }
-                        disabled={isEditMode} //Linea para establecer si actualizando que el campo no se pueda editar.
+                        disabled={isEditMode || isDeleteMode} //Linea para establecer si se esta actualizando O eliminando que 
+                                                              //el campo no se pueda editar.
                     />
                     <TextField
                         id="id_domicilioOK"
@@ -143,6 +159,7 @@ const AddShippingModal = ({ AddShippingShowModal, setAddShippingShowModal, onUpd
                         {...commonTextFieldProps}
                         error={ formik.touched.id_domicilioOK && Boolean(formik.errors.id_domicilioOK) }
                         helperText={ formik.touched.id_domicilioOK && formik.errors.id_domicilioOK }
+                        disabled={isDeleteMode} //Si está eliminando que el campo no se pueda editar
                     />
                     <TextField
                         id="id_proveedorOK"
@@ -151,6 +168,7 @@ const AddShippingModal = ({ AddShippingShowModal, setAddShippingShowModal, onUpd
                         {...commonTextFieldProps}
                         error={ formik.touched.id_proveedorOK && Boolean(formik.errors.id_proveedorOK) }
                         helperText={ formik.touched.id_proveedorOK && formik.errors.id_proveedorOK }
+                        disabled={isDeleteMode} //Si está eliminando que el campo no se pueda editar
                     />
                 </DialogContent>
                 {/* FIC: Aqui van las acciones del usuario como son las alertas o botones */}
@@ -183,6 +201,7 @@ const AddShippingModal = ({ AddShippingShowModal, setAddShippingShowModal, onUpd
                     </LoadingButton>
                     {/* FIC: Boton de Guardar o actualizar segun el modo. */}
                     <LoadingButton
+                        style={{ backgroundColor: isDeleteMode ? "#ff0000" : "" }} //Para poner el color del boton en rojo solo si se está ELIMINANDO
                         color="primary"
                         loadingPosition="start"
                         startIcon={<SaveIcon />}
@@ -190,7 +209,7 @@ const AddShippingModal = ({ AddShippingShowModal, setAddShippingShowModal, onUpd
                         type="submit"
                         disabled={!!mensajeExitoAlert}
                     >
-                        <span>{isEditMode ? "ACTUALIZAR" : "GUARDAR"}</span>
+                        <span>{isEditMode ? "ACTUALIZAR" : isDeleteMode ? "ELIMINAR" : "GUARDAR"}</span>
                     </LoadingButton>
                 </DialogActions>
             </form>
