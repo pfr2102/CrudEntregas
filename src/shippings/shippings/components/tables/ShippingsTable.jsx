@@ -40,9 +40,8 @@ const ShippingsColumns = [
     const [AddShippingShowModal, setAddShippingShowModal] = useState(false);
 
     //PARA CONTROLAR LO DE GUARDAR O ACTUALIZAR
-    const [isEditMode, setIsEditMode] = useState(false);
-    const [editData, setEditData] = useState(false);
-    const [modalMode, setModalMode] = useState("add"); //Puede ser add o edit
+    const [isEditMode, setIsEditMode] = useState(false); //Para determinar si la modal está en modo de edicion/agregar (true=editar || false=agregar)
+    const [editData, setEditData] = useState(false);     //Para saber si hay que rellenar los textfield con datos en caso de estar en modo de edición
 
     useEffect(() => {
       async function fetchData() {
@@ -62,13 +61,11 @@ const ShippingsColumns = [
       //Aqui es donde se decide que hacer con la data que regresa el clic en la fila
       console.log("<<ID DEL DOCUMENTO SELECCIONADO>>:", row.id_ordenOK); //row.id_domicilioOK devuelve solo el id, debe funcionar con todo lo demas
       //Poner el modo de editar y pasar la data               por lo que se puede usar formik??? para colocar la data en los textfield
-      setAddShippingShowModal(true);
-      setModalMode("edit");
       setIsEditMode(true);
       setEditData(row);
     };
 
-    //Al parecer MaterialReactTable no soporta directamente onRowClick por lo que se hace el useState con un querySelector
+    //Al parecer MaterialReactTable no soporta directamente onRowClick por lo que se hace el useEffect con un querySelector
     //que se le coloca a cada fila junto con un EventListener
     //usar el useEffect para ejecutar cada que se haga un cambio en shippingsData
     useEffect(() => {
@@ -114,15 +111,14 @@ const ShippingsColumns = [
                         <IconButton 
                         onClick={() => {
                           setAddShippingShowModal(true);
-                          setModalMode("add"); //Para cambiar al modo de agregar cuando se dé clic al boton
-                          setIsEditMode(false);
-                          setEditData(null);
+                          setIsEditMode(false); //Poner modo de edición en falso porque vamos a agregar no editar
+                          setEditData(null); //Poner la edición de data en nulo porque no tiene que haber nada en los textfield
                           }}>
                           <AddCircleIcon />
                         </IconButton>
                       </Tooltip>
                       <Tooltip title="Editar">
-                        <IconButton>
+                        <IconButton onClick={() => setAddShippingShowModal(true)}> {/*Para que se abra la modal de actualizar SOLO despues de dar clic al boton */}
                           <EditIcon />
                         </IconButton>
                       </Tooltip>
@@ -150,11 +146,11 @@ const ShippingsColumns = [
               AddShippingShowModal={AddShippingShowModal}
               setAddShippingShowModal={setAddShippingShowModal}
               onUpdateShippingData={handleUpdateShippingData} //PARTE DE LA FUNCION handleUpdateShippingData
-              isEditMode={modalMode === "edit"}
-              initialData={modalMode === "edit" ? editData : null}
-              row={modalMode === "edit" ? editData : null}  //Pasamos la fila como prop al archivo AddShippingsModal.jsx
+              isEditMode={isEditMode}
+              initialData={isEditMode ? editData : null}
+              row={isEditMode ? editData : null}
               onClose={() => {
-                setAddShippingShowModal(false)
+                setAddShippingShowModal(false);
                 setIsEditMode(false); //Resetear el modo de edición
                 setEditData(null); //Limpiar la data de edición
               }}
