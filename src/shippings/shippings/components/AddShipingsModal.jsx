@@ -14,6 +14,7 @@ import { ShippingValues } from "../helpers/ShippingsValues";
 
 //FEAK: Services
 import { AddOneShipping } from "../services/remote/post/AddOneShipping";
+import { UpdateOneShipping } from "../services/remote/put/UpdateOneShipping";
 
 const AddShippingModal = ({ AddShippingShowModal, setAddShippingShowModal, onUpdateShippingData, isEditMode, setIsEditMode, initialData, row }) => {
     const [mensajeErrorAlert, setMensajeErrorAlert] = useState("");
@@ -39,33 +40,44 @@ const AddShippingModal = ({ AddShippingShowModal, setAddShippingShowModal, onUpd
             setMensajeErrorAlert(null);
             setMensajeExitoAlert(null);
             try {
-                //FIC: si fuera necesario meterle valores compuestos o no compuestos
-                //a alguns propiedades de formik por la razon que sea, se muestren o no
-                //estas propiedades en la ventana modal a travez de cualquier control.
-                //La forma de hacerlo seria:
-                //formik.values.IdInstitutoBK = `${formik.values.IdInstitutoOK}-${formik.values.IdCEDI}`;
-                //formik.values.Matriz = autoChecksSelecteds.join(",");
-            
-                //FIC: Extraer los datos de los campos de
-                //la ventana modal que ya tiene Formik.
-                const Shipping = ShippingValues(values);
-                //FIC: mandamos a consola los datos extraidos
-                console.log("<<Shipping>>", Shipping);
-                //FIC: llamar el metodo que desencadena toda la logica
-                //para ejecutar la API "AddOneShipping" y que previamente
-                //construye todo el JSON de la coleccion de Shippings para
-                //que pueda enviarse en el "body" de la API y determinar si
-                //la inserción fue o no exitosa.
-                await AddOneShipping(Shipping);
-                //FIC: si no hubo error en el metodo anterior
-                //entonces lanzamos la alerta de exito.
-                setMensajeExitoAlert("Envío fue creado y guardado Correctamente");
-                //FIC: falta actualizar el estado actual (documentos/data) para que
-                //despues de insertar el nuevo envio se visualice en la tabla,
-                //pero esto se hara en la siguiente nota.
+                console.log("ENTRÓ AL TRY!!!");
+                console.log(isEditMode);
+                if(isEditMode) {
+                    const Shipping = ShippingValues(values);
+                    console.log("<<Shipping>>", Shipping);
+                    console.log("LA ID QUE SE PASA COMO PARAMETRO ES:", row._id);
+                    // Utiliza la función de actualización si estamos en modo de edición
+                    await UpdateOneShipping(Shipping, row ? row.id_ordenOK : null);
+                    onUpdateShippingData(); //usar la función para volver a cargar los datos de la tabla y que se vea la actualizada
+                }else{
+                    //FIC: si fuera necesario meterle valores compuestos o no compuestos
+                    //a alguns propiedades de formik por la razon que sea, se muestren o no
+                    //estas propiedades en la ventana modal a travez de cualquier control.
+                    //La forma de hacerlo seria:
+                    //formik.values.IdInstitutoBK = `${formik.values.IdInstitutoOK}-${formik.values.IdCEDI}`;
+                    //formik.values.Matriz = autoChecksSelecteds.join(",");
+                
+                    //FIC: Extraer los datos de los campos de
+                    //la ventana modal que ya tiene Formik.
+                    const Shipping = ShippingValues(values);
+                    //FIC: mandamos a consola los datos extraidos
+                    console.log("<<Shipping>>", Shipping);
+                    //FIC: llamar el metodo que desencadena toda la logica
+                    //para ejecutar la API "AddOneShipping" y que previamente
+                    //construye todo el JSON de la coleccion de Shippings para
+                    //que pueda enviarse en el "body" de la API y determinar si
+                    //la inserción fue o no exitosa.
+                    await AddOneShipping(Shipping);
+                    //FIC: si no hubo error en el metodo anterior
+                    //entonces lanzamos la alerta de exito.
+                    setMensajeExitoAlert("Envío fue creado y guardado Correctamente");
+                    //FIC: falta actualizar el estado actual (documentos/data) para que
+                    //despues de insertar el nuevo envio se visualice en la tabla,
+                    //pero esto se hara en la siguiente nota.
 
-                //PARA VOLVER A LLAMAR A LA FUNCIÓN PARA QUE SE MUESTRE EL NUEVO DATO GUARDADO EN LA TABLA
-                onUpdateShippingData();
+                    //PARA VOLVER A LLAMAR A LA FUNCIÓN PARA QUE SE MUESTRE EL NUEVO DATO GUARDADO EN LA TABLA
+                    onUpdateShippingData();
+                }
             } catch (e) {
                 setMensajeExitoAlert(null);
                 setMensajeErrorAlert("No se pudo crear el Envío");

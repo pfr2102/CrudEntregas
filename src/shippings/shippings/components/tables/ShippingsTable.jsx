@@ -60,7 +60,7 @@ const ShippingsColumns = [
 
     const handleRowClick = (row) => {
       //Aqui es donde se decide que hacer con la data que regresa el clic en la fila
-      console.log("Clicked row data:", row.id_ordenOK); //row.id_domicilioOK devuelve solo el id, debe funcionar con todo lo demas
+      console.log("<<ID DEL DOCUMENTO SELECCIONADO>>:", row.id_ordenOK); //row.id_domicilioOK devuelve solo el id, debe funcionar con todo lo demas
       //Poner el modo de editar y pasar la data               por lo que se puede usar formik??? para colocar la data en los textfield
       setAddShippingShowModal(true);
       setModalMode("edit");
@@ -70,13 +70,16 @@ const ShippingsColumns = [
 
     //Al parecer MaterialReactTable no soporta directamente onRowClick por lo que se hace el useState con un querySelector
     //que se le coloca a cada fila junto con un EventListener
+    //usar el useEffect para ejecutar cada que se haga un cambio en shippingsData
     useEffect(() => {
-      const rows = document.querySelectorAll('.MuiTableRow-root');
+      const rows = document.querySelectorAll('.MuiTableRow-root'); //Se seleccionan todas las filas de la tabla con la clase .MuiTableRow-root
   
-      rows.forEach((row, index) => {
+      //se añade un EventListener a cada fila y cuando se hace clic se ejecuta la función handleRowClick con el dato correspondiente de shippingsData
+      rows.forEach((row, index) => { 
         row.addEventListener('click', () => handleRowClick(shippingsData[index-1])); //Aqui es index-1 porque index me traía la fila siguiente a la que presionabas
       });
 
+      //Cuando shippingsData cambia se "limpian" los EventListeners para evitar posibles problemas de memoria o fuga de eventos
       return () => {
         rows.forEach((row) => {
           row.removeEventListener('click', () => handleRowClick(shippingsData[index-1]));
