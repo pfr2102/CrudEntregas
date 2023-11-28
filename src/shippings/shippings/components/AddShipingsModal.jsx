@@ -3,7 +3,7 @@ import { Dialog, DialogContent, DialogTitle, Typography, TextField, DialogAction
 import { LoadingButton } from "@mui/lab";
 import CloseIcon from "@mui/icons-material/Close";
 import SaveIcon from "@mui/icons-material/Save";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 //FIC: Formik - Yup
 import { useFormik } from "formik";
@@ -23,7 +23,7 @@ const AddShippingModal = ({ AddShippingShowModal, setAddShippingShowModal, onUpd
     //FIC: Definition Formik y Yup.
     const formik = useFormik({
         initialValues: {
-            id_ordenOK: row ? row.id_ordenOK : "", // Usa los datos de "row" si están disponibles
+            id_ordenOK: row ? row.id_ordenOK : "", // Operador ternario para determinar si usa los datos de "row" si están disponibles
             id_domicilioOK: row ? row.id_domicilioOK : "",
             id_proveedorOK: row ? row.id_proveedorOK : "",
         },
@@ -40,14 +40,17 @@ const AddShippingModal = ({ AddShippingShowModal, setAddShippingShowModal, onUpd
             setMensajeErrorAlert(null);
             setMensajeExitoAlert(null);
             try {
-                console.log("ENTRÓ AL TRY!!!");
-                console.log(isEditMode);
+                // console.log("ENTRÓ AL TRY!!!");
+                // console.log(isEditMode);
+                //Si la modal esta en modo de edición (osease en actualizar, PUT pues) pues se ejecuta la primera condición que es para
+                //actualizar
                 if(isEditMode) {
                     const Shipping = ShippingValues(values);
                     console.log("<<Shipping>>", Shipping);
-                    console.log("LA ID QUE SE PASA COMO PARAMETRO ES:", row._id);
+                    // console.log("LA ID QUE SE PASA COMO PARAMETRO ES:", row._id);
                     // Utiliza la función de actualización si estamos en modo de edición
-                    await UpdateOneShipping(Shipping, row ? row.id_ordenOK : null);
+                    await UpdateOneShipping(Shipping, row ? row.id_ordenOK : null); //se puede sacar el objectid con row._id para lo del fic aaaaaaaaaaaaaaaaaaa
+                    setMensajeExitoAlert("Envío actualizado Correctamente");
                     onUpdateShippingData(); //usar la función para volver a cargar los datos de la tabla y que se vea la actualizada
                 }else{
                     //FIC: si fuera necesario meterle valores compuestos o no compuestos
@@ -80,7 +83,7 @@ const AddShippingModal = ({ AddShippingShowModal, setAddShippingShowModal, onUpd
                 }
             } catch (e) {
                 setMensajeExitoAlert(null);
-                setMensajeErrorAlert("No se pudo crear el Envío");
+                setMensajeErrorAlert(isEditMode ? "No se pudo actualizar el envío" : "No se pudo crear el envío"); //operador ternario para mostrar mensaje de error correspondiente
             }
         },
     });
@@ -93,6 +96,17 @@ const AddShippingModal = ({ AddShippingShowModal, setAddShippingShowModal, onUpd
         margin: "dense",
         disabled: !!mensajeExitoAlert,
     };
+
+    //useEffect para si estamos actualizando el campo no se pueda editar, se usa dentro del mismo textfield
+    // Dentro del componente AddShippingModal
+    useEffect(() => {
+        // Si estamos en modo edición, deshabilita el campo
+        if (isEditMode) {
+        formik.setFieldValue("id_ordenOK", formik.values.id_ordenOK); // Asegúrate de establecer el valor
+        formik.setFieldTouched("id_ordenOK", false); // También puedes desactivar el indicador de "touched" si lo deseas
+        }
+    }, [isEditMode]);
+  
     
     return(
         <Dialog
@@ -120,6 +134,7 @@ const AddShippingModal = ({ AddShippingShowModal, setAddShippingShowModal, onUpd
                         {...commonTextFieldProps}
                         error={ formik.touched.id_ordenOK && Boolean(formik.errors.id_ordenOK) }
                         helperText={ formik.touched.id_ordenOK && formik.errors.id_ordenOK }
+                        disabled={isEditMode} //Linea para establecer si actualizando que el campo no se pueda editar.
                     />
                     <TextField
                         id="id_domicilioOK"
