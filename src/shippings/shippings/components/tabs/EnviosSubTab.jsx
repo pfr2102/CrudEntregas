@@ -5,7 +5,7 @@ export default function EnviosSubTab() {
  
       <Box>
  
-            <h2>Envios</h2>
+            <h2>Tabla de Envios</h2>
  
       </Box>
  

@@ -34,7 +34,6 @@ export default function EnviosTab() {
             {currentNameTabInUserTab == "PRODUCTOS" && <ProductosTab />}
             {currentNameTabInUserTab == "ESTATUS" && <EstatusTab />}
             {currentNameTabInUserTab == "RASTREOS" && <RastreosTab />}
-
       </Box>
     );
   }

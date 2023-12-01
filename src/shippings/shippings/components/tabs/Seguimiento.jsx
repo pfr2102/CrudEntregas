@@ -1,11 +1,11 @@
 import { Box } from "@mui/material";
 
-export default function ProductosTab() {
+export default function SeguimientoTab() {
     return (
  
       <Box>
  
-            <h2>Tabla de Productos</h2>
+            <h2>Tabla de Seguimiento</h2>
  
       </Box>
  

@@ -5,7 +5,7 @@ export default function EstatusTab() {
  
       <Box>
  
-            <h2>Estatus</h2>
+            <h2>Tabla de Estatus</h2>
  
       </Box>
  
