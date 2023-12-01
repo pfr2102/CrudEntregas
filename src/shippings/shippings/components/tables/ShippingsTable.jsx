@@ -43,6 +43,7 @@ const ShippingsColumns = [
     const [isEditMode, setIsEditMode] = useState(false); //Para determinar si la modal está en modo de edicion/agregar (true=editar || false=agregar)
     const [editData, setEditData] = useState(false);     //Para saber si hay que rellenar los textfield con datos en caso de estar en modo de edición
     const [isDeleteMode, setIsDeleteMode] = useState(false); //Para saber si está en modo de eliminación o no
+    const [selectedRowIndex, setSelectedRowIndex] = useState(null); //Para saber cual es la fila y pasarla para el color de la tabla
 
     useEffect(() => {
       async function fetchData() {
@@ -58,29 +59,32 @@ const ShippingsColumns = [
       fetchData();
     }, []);
 
-    const handleRowClick = (row) => {
-      //Aqui es donde se decide que hacer con la data que regresa el clic en la fila
-      console.log("<<ID DEL DOCUMENTO SELECCIONADO>>:", row.id_ordenOK); //row.id_domicilioOK devuelve solo el id, debe funcionar con todo lo demas
-      //Poner el modo de editar y pasar la data               por lo que se puede usar formik??? para colocar la data en los textfield
-      setIsEditMode(true);
-      setEditData(row);
-    };
-
     //Al parecer MaterialReactTable no soporta directamente onRowClick por lo que se hace el useEffect con un querySelector
     //que se le coloca a cada fila junto con un EventListener
     //usar el useEffect para ejecutar cada que se haga un cambio en shippingsData
     useEffect(() => {
+      const handleRowClick = (index) => {
+        const row = shippingsData[index];
+        //Aqui es donde se decide que hacer con la data que regresa el clic en la fila
+        console.log("<<ID DEL DOCUMENTO SELECCIONADO>>:", row.id_ordenOK); //row.id_domicilioOK devuelve solo el id, debe funcionar con todo lo demas
+        //Poner el modo de editar y pasar la data               por lo que se puede usar formik??? para colocar la data en los textfield
+        setIsEditMode(true);
+        setEditData(row);
+        console.log("INDICE SELECCIONADO JIJODESUMADRE",index);
+        setSelectedRowIndex(index);
+        // selectedRowIndex.style.backgroundColor = "#ff0000";
+      };
       const rows = document.querySelectorAll('.MuiTableRow-root'); //Se seleccionan todas las filas de la tabla con la clase .MuiTableRow-root
   
       //se añade un EventListener a cada fila y cuando se hace clic se ejecuta la función handleRowClick con el dato correspondiente de shippingsData
       rows.forEach((row, index) => { 
-        row.addEventListener('click', () => handleRowClick(shippingsData[index-1])); //Aqui es index-1 porque index me traía la fila siguiente a la que presionabas
+        row.addEventListener('click', () => handleRowClick(index-1)); //Aqui es index-1 porque index me traía la fila siguiente a la que presionabas
       });
 
       //Cuando shippingsData cambia se "limpian" los EventListeners para evitar posibles problemas de memoria o fuga de eventos
       return () => {
-        rows.forEach((row) => {
-          row.removeEventListener('click', () => handleRowClick(shippingsData[index-1]));
+        rows.forEach((row, index) => {
+          row.removeEventListener('click', () => handleRowClick(index-1));
         });
       };
     }, [shippingsData]);
@@ -103,6 +107,15 @@ const ShippingsColumns = [
             data={shippingsData}
             initialState={{ density: "compact", showGlobalFilter: true }}
             state={{isLoading: loadingTable}}
+            // muiTableBodyRowProps={({ row, index }) => {
+            //   console.log("Contenido de rowIndex:", index);
+            //   return {
+            //     sx: {
+            //       cursor: loadingTable ? "not-allowed" : "pointer",
+            //       backgroundColor: selectedRowIndex === index ? "#ff0000" : "inherit",
+            //     },
+            //   };
+            // }}
             renderTopToolbarCustomActions={({ table }) => (
                 <>
                   {/* ------- BARRA DE ACCIONES ------ */}

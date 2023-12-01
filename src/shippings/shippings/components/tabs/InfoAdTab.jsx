@@ -5,7 +5,7 @@ export default function InfoAdTab() {
  
       <Box>
  
-            <h2>ID</h2>
+            <h2>InfoAd</h2>
  
       </Box>
  

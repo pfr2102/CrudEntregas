@@ -1,24 +1,24 @@
 import { Box } from "@mui/material";
 import { useState } from "react";
 //FIC:
-import UserNavTab from "./UserNavTab";
+import EnviosNavTab from "./EnviosNavTab";
+import EnviosSubTab from "./EnviosSubTab";
 import InfoAdTab from "./InfoAdTab";
-import FilesTab from "./FilesTab";
-import PhonsTab from "./PhonesTab";
-import AddressesTab from "./AdressesTab";
-import WebAddressesTab from "./WebAdressesTab";
+import ProductosTab from "./ProductosTab";
+import EstatusTab from "./EstatusTab";
+import RastreosTab from "./RastreosTab";
 
-export default function BusinessTab() {
+export default function EnviosTab() {
  
   //FIC: indicamos que al iniciar no hay ningun Instituto seleccionado.
   const [currentRowInUserTab, setCurrentRowInUserTab] = useState(1);   
  
   //FIC: indicamos que el estado inicial del tab page principal por default sera INSTITUTOS.
-  const [currentNameTabInUserTab, setCurrentNameTabInUserTab] = useState("USUARIO");
+  const [currentNameTabInUserTab, setCurrentNameTabInUserTab] = useState("ENVIOS");
  
   return (
       <Box> 
-            <UserNavTab
+            <EnviosNavTab
                 currentRowInUserTab={currentRowInUserTab} 
                 setCurrentNameTabInUserTab={setCurrentNameTabInUserTab} 
             />
@@ -29,10 +29,11 @@ export default function BusinessTab() {
             {console.log(currentNameTabInUserTab)}
             {/* {currentNameTabInBusinessTab == "NEGOCIOS" && <BusinessTab />} */}
            
-            {currentNameTabInUserTab == "ID" && <InfoAdTab />}
-            {currentNameTabInUserTab == "NOMBRE" && <FilesTab />}
-            {currentNameTabInUserTab == "CORREO" && <PhonsTab />}
-            {currentNameTabInUserTab == "TELEFONO" && <WebAddressesTab />}
+            {currentNameTabInUserTab == "ENVIOS" && <EnviosSubTab />}
+            {currentNameTabInUserTab == "INFO AD" && <InfoAdTab />}
+            {currentNameTabInUserTab == "PRODUCTOS" && <ProductosTab />}
+            {currentNameTabInUserTab == "ESTATUS" && <EstatusTab />}
+            {currentNameTabInUserTab == "RASTREOS" && <RastreosTab />}
 
       </Box>
     );

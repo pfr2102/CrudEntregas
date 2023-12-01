@@ -1,11 +1,11 @@
 import { Box } from "@mui/material";
 
-export default function FilesTab() {
+export default function EnviosSubTab() {
     return (
  
       <Box>
  
-            <h2>FilesTab</h2>
+            <h2>Envios</h2>
  
       </Box>
  

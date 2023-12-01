@@ -1,11 +1,11 @@
 import { Box } from "@mui/material";
 
-export default function WebAdressesTab() {
+export default function RastreoTab() {
     return (
  
       <Box>
  
-            <h2>WebAdressesTab</h2>
+            <h2>Rastreo</h2>
  
       </Box>
  

@@ -1,8 +1,9 @@
 import { Box } from "@mui/material";
 import { useState } from "react";
 import ShippingsNavTab from "../components/tabs/ShippingsNavTab";
-import InstitutesTab from "../components/tabs/ShippingsTab";
-import BusinessTab from "../components/tabs/UserTab";
+import ShippingsTab from "../components/tabs/ShippingsTab";
+import EnviosTab from "../components/tabs/EnviosTab";
+import InfoAdicionalTab from "../components/tabs/InfoAdicionalTab";
 
 const Shippings = () => {
 
@@ -27,11 +28,12 @@ const Shippings = () => {
            
             {/* FIC: si en el tap principal esta seleccionado es el tab de INSTITUTOS
             manda llamar la pagina que va dentro del tab de Institutos. */}
-            {currentTabInPrincipalTab == "SHIPPINGS" && <InstitutesTab />}
+            {currentTabInPrincipalTab == "SHIPPINGS" && <ShippingsTab />}
+            {currentTabInPrincipalTab == "INFO ADICIONAL" && <InfoAdicionalTab />}
 
             {/* FIC: si en el tap principal esta seleccionado el tab de NEGOCIOS
             manda llamar la pagina que va dentro del tab de Business. */}
-            {currentTabInPrincipalTab == "USUARIO" && <BusinessTab />}   
+            {currentTabInPrincipalTab == "ENVIOS" && <EnviosTab />}   
 
         </Box>
     );

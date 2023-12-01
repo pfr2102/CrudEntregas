@@ -1,26 +1,29 @@
 import { Box, Tab, Tabs, Stack } from "@mui/material";
 import React, { useState } from "react";
 
-const UserTabs = ["ID", "Nombre", "Correo", "Telefono"];
+const UserTabs = ["Envios", "Info Ad", "Productos", "Estatus", "Rastreos"];
 
-const UserNavTab = ({ currentRowInUserTab, setCurrentNameTabInUserTab }) => {
+const EnviosNavTab = ({ currentRowInUserTab, setCurrentNameTabInUserTab }) => {
 const [currenTabIndex, setCurrentTabIndex] = useState(0);
 
 //FIC: Evento Change
 const handleChange = (e) => {
 setCurrentNameTabInUserTab(e.target.innerText.toUpperCase());
         switch (e.target.innerText.toUpperCase()) {
-                case "ID":
+                case "ENVIOS":
                         setCurrentTabIndex(0);
                         break;
-                case "NOMBRE":
+                case "INFO AD":
                         setCurrentTabIndex(1);
                         break;
-                case "CORREO":
+                case "PRODUCTOS":
                         setCurrentTabIndex(2);
                         break;
-                case "TELEFONO":
+                case "ESTATUS":
                         setCurrentTabIndex(3);
+                        break;
+                case "RASTREOS":
+                        setCurrentTabIndex(4);
                         break;
         }
 };
@@ -41,4 +44,4 @@ return <Tab key={tab} label={tab} disabled ={currentRowInUserTab === null}/>;
 );
 };
 
-export default UserNavTab;
+export default EnviosNavTab;

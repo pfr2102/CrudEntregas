@@ -1,7 +1,7 @@
 import { Box, Tabs, Tab } from "@mui/material";
 import React, { useEffect, useState } from "react";
 //import { Link, useHistory } from "react-router-dom";
-const ShippingsTabs = ["Shippings", "Usuario"];
+const ShippingsTabs = ["Shippings", "Info Adicional", "Envios"];
 
 const ShippingsNavTab = ({currentRowInShippingsTab, setCurrentTabInPrincipalTab, setUserTabInPrincipalTabIsSelected}) => {
     const [currenTabIndex, setCurrentTabIndex] = useState(0);
@@ -18,15 +18,19 @@ const ShippingsNavTab = ({currentRowInShippingsTab, setCurrentTabInPrincipalTab,
             case "SHIPPINGS":
                 setCurrentTabIndex(0);
                 break;
-            case "USUARIO":
+            case "INFO ADICIONAL":
                 setCurrentTabIndex(1);
+                break;
+            case "ENVIOS":
+                setCurrentTabIndex(2);
                 break;
         }
         //FIC: cambiamos el estado de la tap de user a un true para indicar
         //que el usuario ya hizo click en esta pestaña y entonces se despliegue el
         //UserNavTap con los tab pages de este nivel (subdocumento) que contiene
         //mas subdocumentos como: etc.
-        if (e.target.innerText.toUpperCase() == "USUARIO") setUserTabInPrincipalTabIsSelected(true);
+        if (e.target.innerText.toUpperCase() == "ENVIOS" || e.target.innerText.toUpperCase() == "INFO ADICIONAL") 
+        setUserTabInPrincipalTabIsSelected(true);
     };
 
     return (
