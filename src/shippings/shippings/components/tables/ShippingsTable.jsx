@@ -15,18 +15,18 @@ import AddShippingsModal from '../AddShipingsModal';
 //FIC: Columns Table Definition.
 const ShippingsColumns = [
     {
-      accessorKey: "id_ordenOK", //***IMPORTANTE: El nombre tiene que ser igual al de MongoDB o no se muestra en la tabla***
-      header: "ID OK",
+      accessorKey: "IdEntregaOK", //***IMPORTANTE: El nombre tiene que ser igual al de MongoDB o no se muestra en la tabla***
+      header: "ID EntregaOK",
       size: 30, //small column
     },
     {
-      accessorKey: "id_domicilioOK",
-      header: "ID Domicilio",
+      accessorKey: "IdEntregaBK",
+      header: "ID EntregaBK",
       size: 30, //small column
     },
     {
-      accessorKey: "id_proveedorOK",
-      header: "ID Proveedor",
+      accessorKey: "IdOrdenOK",
+      header: "ID Orden",
       size: 150, //small column
     }
   ];
@@ -66,7 +66,7 @@ const ShippingsColumns = [
       const handleRowClick = (index) => {
         const row = shippingsData[index];
         //Aqui es donde se decide que hacer con la data que regresa el clic en la fila
-        console.log("<<ID DEL DOCUMENTO SELECCIONADO>>:", row.id_ordenOK); //row.id_domicilioOK devuelve solo el id, debe funcionar con todo lo demas
+        console.log("<<ID DEL DOCUMENTO SELECCIONADO>>:", row.IdEntregaOK); //row.id_domicilioOK devuelve solo el id, debe funcionar con todo lo demas
         //Poner el modo de editar y pasar la data               por lo que se puede usar formik??? para colocar la data en los textfield
         setIsEditMode(true);
         setEditData(row);

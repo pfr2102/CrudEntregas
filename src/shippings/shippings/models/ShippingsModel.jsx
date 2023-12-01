@@ -1,13 +1,10 @@
 export function ShippingsModel() {
     let Shipping = {
-        id_ordenOK: { type: String },
-        id_domicilioOK: { type: String },
-        id_proveedorOK: { type: String },
-        usuario: [],
-        envio: [],
-        empresa_logistica: [],
-        rastreo: [],
-        devolucion: [],
+        IdEntregaOK: { type: String },
+        IdEntregaBK: { type: String },
+        IdOrdenOK: { type: String },
+        info_ad: [],
+        envios: []
     };
     return Shipping
 };

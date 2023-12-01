@@ -26,16 +26,16 @@ const AddShippingModal = ({ AddShippingShowModal, setAddShippingShowModal, onUpd
     //FIC: Definition Formik y Yup.
     const formik = useFormik({
         initialValues: {
-            id_ordenOK: row ? row.id_ordenOK : "", // Operador ternario para determinar si usa los datos de "row" si están disponibles
-            id_domicilioOK: row ? row.id_domicilioOK : "",
-            id_proveedorOK: row ? row.id_proveedorOK : "",
+            IdEntregaOK: row ? row.IdEntregaOK : "", // Operador ternario para determinar si usa los datos de "row" si están disponibles
+            IdEntregaBK: row ? row.IdEntregaBK : "",
+            IdOrdenOK: row ? row.IdOrdenOK : "",
         },
         validationSchema: Yup.object({
-            id_ordenOK: Yup.string()
+            IdEntregaOK: Yup.string()
                 .required("Campo requerido")
                 .matches(/^[a-zA-Z0-9-]+$/, 'Solo se permiten caracteres alfanuméricos'),
-            id_domicilioOK: Yup.string().required("Campo requerido"),
-            id_proveedorOK: Yup.string().required("Campo requerido"),
+            IdEntregaBK: Yup.string().required("Campo requerido"),
+            IdOrdenOK: Yup.string().required("Campo requerido"),
         }),
         onSubmit: async (values) => {
             console.log("FIC: entro al onSubmit despues de hacer click en boton Guardar");
@@ -53,7 +53,7 @@ const AddShippingModal = ({ AddShippingShowModal, setAddShippingShowModal, onUpd
                     console.log("<<Shipping>>", Shipping);
                     // console.log("LA ID QUE SE PASA COMO PARAMETRO ES:", row._id);
                     // Utiliza la función de actualización si estamos en modo de edición
-                    await UpdateOneShipping(Shipping, row ? row.id_ordenOK : null); //se puede sacar el objectid con row._id para lo del fic aaaaaaaaaaaaaaaaaaa
+                    await UpdateOneShipping(Shipping, row ? row.IdEntregaOK : null); //se puede sacar el objectid con row._id para lo del fic aaaaaaaaaaaaaaaaaaa
                     setMensajeExitoAlert("Envío actualizado Correctamente");
                     onUpdateShippingData(); //usar la función para volver a cargar los datos de la tabla y que se vea la actualizada
                 }else if(isDeleteMode){
@@ -62,7 +62,7 @@ const AddShippingModal = ({ AddShippingShowModal, setAddShippingShowModal, onUpd
                     console.log("<<Shipping>>", Shipping);
                     // console.log("LA ID QUE SE PASA COMO PARAMETRO ES:", row._id);
                     // Utiliza la función de eliminar si estamos en modo de eliminación
-                    await DeleteOneShipping(row.id_ordenOK);
+                    await DeleteOneShipping(row.IdEntregaOK);
                     setMensajeExitoAlert("Envío eliminado Correctamente");
                     onUpdateShippingData(); //usar la función para volver a cargar los datos de la tabla y que se vea la actualizada
                 }else{
@@ -117,7 +117,7 @@ const AddShippingModal = ({ AddShippingShowModal, setAddShippingShowModal, onUpd
     useEffect(() => {
         // Si estamos en modo edición, deshabilita el campo
         if (isEditMode) {
-        formik.setFieldValue("id_ordenOK", formik.values.id_ordenOK); // Asegúrate de establecer el valor
+        formik.setFieldValue("id_ordenOK", formik.values.IdEntregaOK); // Asegúrate de establecer el valor
         formik.setFieldTouched("id_ordenOK", false); // También puedes desactivar el indicador de "touched" si lo deseas
         }
     }, [isEditMode]);
@@ -143,31 +143,31 @@ const AddShippingModal = ({ AddShippingShowModal, setAddShippingShowModal, onUpd
                 >
                     {/* FIC: Campos de captura o selección */}
                     <TextField
-                        id="id_ordenOK"
-                        label="IdOrdenOK*"
-                        value={formik.values.id_ordenOK}
+                        id="IdEntregaOK"
+                        label="IdEntregaOK*"
+                        value={formik.values.IdEntregaOK}
                         {...commonTextFieldProps}
-                        error={ formik.touched.id_ordenOK && Boolean(formik.errors.id_ordenOK) }
-                        helperText={ formik.touched.id_ordenOK && formik.errors.id_ordenOK }
+                        error={ formik.touched.IdEntregaOK && Boolean(formik.errors.IdEntregaOK) }
+                        helperText={ formik.touched.IdEntregaOK && formik.errors.IdEntregaOK }
                         disabled={isEditMode || isDeleteMode} //Linea para establecer si se esta actualizando O eliminando que 
                                                               //el campo no se pueda editar.
                     />
                     <TextField
-                        id="id_domicilioOK"
-                        label="IdDomicilioOK*"
-                        value={formik.values.id_domicilioOK}
+                        id="IdEntregaBK"
+                        label="IdEntregaBK*"
+                        value={formik.values.IdEntregaBK}
                         {...commonTextFieldProps}
-                        error={ formik.touched.id_domicilioOK && Boolean(formik.errors.id_domicilioOK) }
-                        helperText={ formik.touched.id_domicilioOK && formik.errors.id_domicilioOK }
+                        error={ formik.touched.IdEntregaBK && Boolean(formik.errors.IdEntregaBK) }
+                        helperText={ formik.touched.IdEntregaBK && formik.errors.IdEntregaBK }
                         disabled={isDeleteMode} //Si está eliminando que el campo no se pueda editar
                     />
                     <TextField
-                        id="id_proveedorOK"
-                        label="IdProveedorOK*"
-                        value={formik.values.id_proveedorOK}
+                        id="IdOrdenOK"
+                        label="IdOrdenOK*"
+                        value={formik.values.IdOrdenOK}
                         {...commonTextFieldProps}
-                        error={ formik.touched.id_proveedorOK && Boolean(formik.errors.id_proveedorOK) }
-                        helperText={ formik.touched.id_proveedorOK && formik.errors.id_proveedorOK }
+                        error={ formik.touched.IdOrdenOK && Boolean(formik.errors.IdOrdenOK) }
+                        helperText={ formik.touched.IdOrdenOK && formik.errors.IdOrdenOK }
                         disabled={isDeleteMode} //Si está eliminando que el campo no se pueda editar
                     />
                 </DialogContent>
