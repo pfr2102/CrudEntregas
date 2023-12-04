@@ -1,5 +1,5 @@
 import { Box, Container } from "@mui/material";
-import ShippingsTable from "../tables/ShippingsTable";
+import InfoAdTable from "../tables/InfoAdTable";
 
 export default function InfoAdicionalTab() {
     return (
@@ -7,7 +7,7 @@ export default function InfoAdicionalTab() {
       <Box>
         <br></br>
         <br></br>
-            {/* <ShippingsTable /> */}
+            <InfoAdTable />
             <h2>Tab con la tabla del subdocumento de info adicional</h2>
  
       </Box>

@@ -38,5 +38,4 @@ const Shippings = () => {
         </Box>
     );
 };
-
 export default Shippings;

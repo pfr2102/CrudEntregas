@@ -12,6 +12,10 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import { getAllShippings } from '../../services/remote/get/GetAllShippings';
 import AddShippingsModal from '../AddShipingsModal';
 
+//REDUX
+import { useDispatch } from 'react-redux';
+import { SET_SELECTED_SHIPPING_DATA } from '../../../redux/slices/shippingsSlice';
+
 //FIC: Columns Table Definition.
 const ShippingsColumns = [
     {
@@ -45,6 +49,8 @@ const ShippingsColumns = [
     const [isDeleteMode, setIsDeleteMode] = useState(false); //Para saber si está en modo de eliminación o no
     const [selectedRowIndex, setSelectedRowIndex] = useState(null); //Para saber cual es la fila y pasarla para el color de la tabla
 
+    const dispatch = useDispatch();
+
     useEffect(() => {
       async function fetchData() {
         try {
@@ -70,9 +76,16 @@ const ShippingsColumns = [
         //Poner el modo de editar y pasar la data               por lo que se puede usar formik??? para colocar la data en los textfield
         setIsEditMode(true);
         setEditData(row);
-        console.log("INDICE SELECCIONADO JIJODESUMADRE",index);
+        console.log("INDICE SELECCIONADO",index);
         setSelectedRowIndex(index);
+        //Dispatch para enviar data a redux y que este la pase a InfoAdTable
+        dispatch(SET_SELECTED_SHIPPING_DATA(row)); //SE PASA COMPLETO PORQUE SE NECESITA EL ID DEL DOCUMENTO PRINCIPAL PARA INSERTAR EL SUBDOCUMENTO
+                                                   //SI QUISIERAS PASAR SOLO UN CAMPO O SUBDOCUMENTO SERIA CON row.info_ad o con row.IdEntregaOK
         // selectedRowIndex.style.backgroundColor = "#ff0000";
+        //SUBDOCUMENTO AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+        // console.log("<<SUBDOCUMENTO AAAAAAAAA>>:", row.info_ad[0].Etiqueta); //CONSULTAR CAMPO EN ESPECIFICO DE LOS SUBDOCUMENTOS
+        // console.log("<<SUBDOCUMENTO AAAAAAAAA>>:", row.info_ad); //CONSULTAR SUBDOCUMENTO COMPLETO AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+        //SUBDOCUMENTO AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
       };
       const rows = document.querySelectorAll('.MuiTableRow-root'); //Se seleccionan todas las filas de la tabla con la clase .MuiTableRow-root
   
@@ -94,6 +107,7 @@ const ShippingsColumns = [
       try {
           const updatedShippingsData = await getAllShippings();
           setShippingsData(updatedShippingsData);
+          console.log("DATA EN EL editData RAAAH", editData); //Para saber que datos tiene almacenados editData
       } catch (error) {
           console.error("Error updating shipping data:", error);
       }
@@ -173,13 +187,12 @@ const ShippingsColumns = [
               initialData={isEditMode || isDeleteMode ? editData : null} //Para que en ambos modales de eliminar y 
               row={isEditMode || isDeleteMode ? editData : null}         //actualizar se ponga la info si es que hay
               onClose={() => {
-                setAddShippingShowModal(false);
+                setAddShippingShowModal(false); //Cerrar la modal
                 setIsEditMode(false); //Resetear el modo de edición
-                setEditData(null); //Limpiar la data de edición
+                setEditData(null); //Limpiar la data de ediciónS
               }}
             />
           </Dialog>
-
         </Box>
       );
   };

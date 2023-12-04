@@ -1,7 +1,7 @@
 import { Box, Container } from "@mui/material";
 import ShippingsTable from "../tables/ShippingsTable";
 
-export default function InstitutesTab() {
+export default function ShippingsTab() {
     return (
     <Container maxWidth="lg">
       <Box>

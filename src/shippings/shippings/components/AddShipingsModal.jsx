@@ -17,17 +17,24 @@ import { AddOneShipping } from "../services/remote/post/AddOneShipping";
 import { UpdateOneShipping } from "../services/remote/put/UpdateOneShipping";
 import { DeleteOneShipping } from "../services/remote/del/DeleteOneShipping"; 
 
+//FEAK: UUID (Objeto ID Universal)
+import { v4 as genID } from "uuid";
+
 const AddShippingModal = ({ AddShippingShowModal, setAddShippingShowModal, onUpdateShippingData, isEditMode, isDeleteMode, row }) => {
     const [mensajeErrorAlert, setMensajeErrorAlert] = useState("");
     const [mensajeExitoAlert, setMensajeExitoAlert] = useState("");
+
+    //Para principal (12 caracteres)
+    const [IdGen, setIdGen] = useState(genID().replace(/-/g, "").substring(0, 12));
+
     console.log("MODO DE BORRAR ES:",isDeleteMode);
     console.log("MODO DE ACTUALIZAR ES:",isEditMode);
     
     //FIC: Definition Formik y Yup.
     const formik = useFormik({
         initialValues: {
-            IdEntregaOK: row ? row.IdEntregaOK : "", // Operador ternario para determinar si usa los datos de "row" si están disponibles
-            IdEntregaBK: row ? row.IdEntregaBK : "",
+            IdEntregaOK: row ? row.IdEntregaOK : `9001-${IdGen}`, 
+            IdEntregaBK: row ? row.IdEntregaBK : "", // Operador ternario para determinar si usa los datos de "row" si están disponibles
             IdOrdenOK: row ? row.IdOrdenOK : "",
         },
         validationSchema: Yup.object({
@@ -57,7 +64,6 @@ const AddShippingModal = ({ AddShippingShowModal, setAddShippingShowModal, onUpd
                     setMensajeExitoAlert("Envío actualizado Correctamente");
                     onUpdateShippingData(); //usar la función para volver a cargar los datos de la tabla y que se vea la actualizada
                 }else if(isDeleteMode){
-                    console.log("SE ESTA ELIMINANDO RAAAAAAAAAH");
                     const Shipping = ShippingValues(values);
                     console.log("<<Shipping>>", Shipping);
                     // console.log("LA ID QUE SE PASA COMO PARAMETRO ES:", row._id);
@@ -149,7 +155,7 @@ const AddShippingModal = ({ AddShippingShowModal, setAddShippingShowModal, onUpd
                         {...commonTextFieldProps}
                         error={ formik.touched.IdEntregaOK && Boolean(formik.errors.IdEntregaOK) }
                         helperText={ formik.touched.IdEntregaOK && formik.errors.IdEntregaOK }
-                        disabled={isEditMode || isDeleteMode} //Linea para establecer si se esta actualizando O eliminando que 
+                        disabled={true} //Linea para establecer si se esta actualizando O eliminando que 
                                                               //el campo no se pueda editar.
                     />
                     <TextField
