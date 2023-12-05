@@ -1,9 +1,9 @@
 import axios from "axios";
 
-export function UpdateOneShipping(shipping, id) {
+export function UpdateOneShipping(shipping, idInstitutoOK, idNegocioOK, idEntregaOK) {
     console.log("<<EJECUTA>> API <<UpdateOneShipping>> Requiere:", shipping);
     return new Promise((resolve, reject) => {
-        axios.put(`http://localhost:3020/api/pwa/shipping/${id}`, shipping)
+        axios.put(`http://localhost:3020/api/pwa/shipping/?IdInstitutoOK=${idInstitutoOK}&IdNegocioOK=${idNegocioOK}&IdEntregaOK=${idEntregaOK}`, shipping)
             .then((response) => {
                 console.log("<<RESPONSE>> UpdateOneShipping", shipping);
                 const data = response.data;

@@ -19,6 +19,16 @@ import { SET_SELECTED_SHIPPING_DATA } from '../../../redux/slices/shippingsSlice
 //FIC: Columns Table Definition.
 const ShippingsColumns = [
     {
+      accessorKey: "IdInstitutoOK", 
+      header: "ID Instituto",
+      size: 30, //small column
+    },
+    {
+      accessorKey: "IdNegocioOK", 
+      header: "ID Negocio",
+      size: 30, //small column
+    },
+    {
       accessorKey: "IdEntregaOK", //***IMPORTANTE: El nombre tiene que ser igual al de MongoDB o no se muestra en la tabla***
       header: "ID EntregaOK",
       size: 30, //small column
