@@ -1,21 +1,22 @@
 import axios from "axios";
 
-export function AddOneInfoAd(shippingId, shipping, subdocument) {
-    console.log("<<EJECUTA>> API <<AddOneShipping>> Requiere:", shipping)
+export function AddOneInfoAd(shippingId, idInstituto, idNegocio, shipping, subdocument) {
+    console.log("<<EJECUTA>> API <<AddOneInfoAd>> Requiere:", shipping);
     return new Promise((resolve, reject) => {
-        axios.post(`http://localhost:3020/api/pwa/shipping/${shippingId}`, { ...shipping, info_ad: subdocument })
+        const queryParams = `?IdEntregaOK=${shippingId}&IdInstitutoOK=${idInstituto}&IdNegocioOK=${idNegocio}`;
+        axios.post(`http://localhost:3020/api/pwa/shipping/subdocument/${queryParams}`, { ...shipping, info_ad: subdocument })
             .then((response) => {
-                console.log("<<RESPONSE>> AddOneShipping", shipping)
+                console.log("<<RESPONSE>> AddOneInfoAd", shipping);
                 const data = response.data;
                 if (!data.success) {
-                    console.error("<<ERROR>> <<NO>> se ejecutó la API <<AddOneShipping>> de forma correcta", data);
+                    console.error("<<ERROR>> <<NO>> se ejecutó la API <<AddOneInfoAd>> de forma correcta", data);
                     reject(data);
                 } else if (data.success) {
                     resolve(data);
                 }
             })
             .catch((error) => {
-                console.error("<<ERROR>> en API <<AddOneShipping>>", error);
+                console.error("<<ERROR>> en API <<AddOneInfoAd>>", error);
                 reject(error);
             });
     });

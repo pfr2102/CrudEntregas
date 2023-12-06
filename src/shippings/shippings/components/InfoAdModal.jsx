@@ -14,13 +14,16 @@ import { InfoAdValues } from "../helpers/InfoAdValues";
 
 //SERVICES
 import { AddOneInfoAd } from "../services/remote/post/AddOneInfoAd";
-import { updateOneInfoAd } from "../services/remote/put/UpdateOneInfoAd";
+import { UpdateOneInfoAd } from "../services/remote/put/UpdateOneInfoAd";
+import { DeleteOneInfoAd } from "../services/remote/del/DeleteOneInfoAd";
 
-const InfoAdModal = ({ InfoAdShowModal, setInfoAdShowModal, selectedShippingData, reloadTable, isEditMode, row }) => {
+const InfoAdModal = ({ InfoAdShowModal, setInfoAdShowModal, selectedShippingData, reloadTable, isEditMode, isDeleteMode, row }) => {
     const [mensajeErrorAlert, setMensajeErrorAlert] = useState("");
     const [mensajeExitoAlert, setMensajeExitoAlert] = useState("");
     //Para ver la data que trae el documento completo desde el dispatch de ShippingsTable
     console.log("DATA YA PASADA EN INFOADMODAL AAAAAAA",selectedShippingData); 
+    console.log("MODO DE BORRAR ES:",isDeleteMode);
+    console.log("MODO DE ACTUALIZAR ES:",isEditMode);
 
     //FIC: Definition Formik y Yup.IdEntregaBK: row ? row.IdEntregaBK : "",
     const formik = useFormik({
@@ -55,6 +58,8 @@ const InfoAdModal = ({ InfoAdShowModal, setInfoAdShowModal, selectedShippingData
                     const subdocumentId = row.IdEtiquetaOK;
                     //Poner el Id del documento existente para pasar al servicio PUT
                     const existingShippingId = selectedShippingData.IdEntregaOK;
+                    const idInstituto = selectedShippingData.IdInstitutoOK;
+                    const idNegocio = selectedShippingData.IdNegocioOK;
 
                     InfoAd.IdEtiquetaOK = row.IdEtiquetaOK
                     InfoAd.IdEtiqueta = row.IdEtiqueta
@@ -64,27 +69,43 @@ const InfoAdModal = ({ InfoAdShowModal, setInfoAdShowModal, selectedShippingData
                     InfoAd.Secuencia = row.Secuencia
 
                     // Llamar al servicio de PUT para actualizar el subdocumento
-                    await updateOneInfoAd(existingShippingId, subdocumentId, values);
+                    await UpdateOneInfoAd(values, idInstituto, idNegocio, existingShippingId, subdocumentId);
                     
                     reloadTable();
                     setMensajeExitoAlert("Info Adicional actualizada correctamente");
+                }else if(isDeleteMode){
+                    console.log("SE ESTÁ BORRANDO RAAAAAAAAAH");
+                    const InfoAd = InfoAdValues(values);
+                    // Obtener el ID del subdocumento que se está editando
+                    const subdocumentId = row.IdEtiquetaOK;
+                    //Poner el Id del documento existente para pasar al servicio DELETE
+                    const existingShippingId = selectedShippingData.IdEntregaOK;
+                    const idInstituto = selectedShippingData.IdInstitutoOK;
+                    const idNegocio = selectedShippingData.IdNegocioOK;
+
+                    await DeleteOneInfoAd(idInstituto, idNegocio, existingShippingId, subdocumentId);
+                    reloadTable();
+                    setMensajeExitoAlert("Info Adicional eliminada correctamente");
                 }else{
                     //Usar InfoAdValues para obtener los valores definidos del subdocumento en el archivo del mismo nombre
                     const infoAdSubdocument = InfoAdValues(values);
                     
                     //Poner el Id del documento existente para pasar al servicio POST
                     const existingShippingId = selectedShippingData.IdEntregaOK;
-
+                    const instituto = selectedShippingData.IdInstitutoOK;
+                    const negocio = selectedShippingData.IdNegocioOK;
+    
                     //Pasar los parametros al servicio de POST del archivo AddOneInfoAd.jsx
                     //En el mismo orden se pasa: Id del documento existente || Los valores que el usuario pone en el form y que se sacan
                     //de formik || El objeto con los valores predefinidos (IdEtiquetaOK, IdEtiqueta, Etiqueta,...etc...)
-                    await AddOneInfoAd(existingShippingId, values, infoAdSubdocument);
+                    await AddOneInfoAd(existingShippingId, instituto, negocio, values, infoAdSubdocument);
                     reloadTable();
                     setMensajeExitoAlert("Info Adicional creada y guardada Correctamente");
                 }
             } catch (e) {
                 setMensajeExitoAlert(null);
                 setMensajeErrorAlert(isEditMode ? "No se pudo actualizar la info adicional" : 
+                                     isDeleteMode ? "No se pudo eliminar la info adicional" : 
                                      "No se pudo guardar la info adicional");
             }
         },
@@ -109,7 +130,7 @@ const InfoAdModal = ({ InfoAdShowModal, setInfoAdShowModal, selectedShippingData
                 {/* FIC: Aqui va el Titulo de la Modal */}
                 <DialogTitle>
                     <Typography component="h6">
-                        <strong>{isEditMode ? "Actualizar Info Adicional" : "Agregar Info Adicional"}</strong>
+                        <strong>{isEditMode ? "ACTUALIZAR INFO ADICIONAL" : isDeleteMode ? "ELIMINAR INFO ADICIONAL" : "AGREGAR INFO ADICIONAL"}</strong>
                     </Typography>
                 </DialogTitle>
                 {/* FIC: Aqui va un tipo de control por cada Propiedad de Institutos */}
@@ -125,6 +146,7 @@ const InfoAdModal = ({ InfoAdShowModal, setInfoAdShowModal, selectedShippingData
                         {...commonTextFieldProps}
                         error={ formik.touched.IdEtiquetaOK && Boolean(formik.errors.IdEtiquetaOK) }
                         helperText={ formik.touched.IdEtiquetaOK && formik.errors.IdEtiquetaOK }
+                        disabled={isDeleteMode} //Si está eliminando que el campo no se pueda editar
                     />
                     <TextField
                         id="IdEtiqueta"
@@ -133,6 +155,7 @@ const InfoAdModal = ({ InfoAdShowModal, setInfoAdShowModal, selectedShippingData
                         {...commonTextFieldProps}
                         error={ formik.touched.IdEtiqueta && Boolean(formik.errors.IdEtiqueta) }
                         helperText={ formik.touched.IdEtiqueta && formik.errors.IdEtiqueta }
+                        disabled={isDeleteMode} //Si está eliminando que el campo no se pueda editar
                     />
                     <TextField
                         id="Etiqueta"
@@ -141,6 +164,7 @@ const InfoAdModal = ({ InfoAdShowModal, setInfoAdShowModal, selectedShippingData
                         {...commonTextFieldProps}
                         error={ formik.touched.Etiqueta && Boolean(formik.errors.Etiqueta) }
                         helperText={ formik.touched.Etiqueta && formik.errors.Etiqueta }
+                        disabled={isDeleteMode} //Si está eliminando que el campo no se pueda editar
                     />
                     <TextField
                         id="Valor"
@@ -149,6 +173,7 @@ const InfoAdModal = ({ InfoAdShowModal, setInfoAdShowModal, selectedShippingData
                         {...commonTextFieldProps}
                         error={ formik.touched.Valor && Boolean(formik.errors.Valor) }
                         helperText={ formik.touched.Valor && formik.errors.Valor }
+                        disabled={isDeleteMode} //Si está eliminando que el campo no se pueda editar
                     />
                     <TextField
                         id="IdTipoSeccionOK"
@@ -157,6 +182,7 @@ const InfoAdModal = ({ InfoAdShowModal, setInfoAdShowModal, selectedShippingData
                         {...commonTextFieldProps}
                         error={ formik.touched.IdTipoSeccionOK && Boolean(formik.errors.IdTipoSeccionOK) }
                         helperText={ formik.touched.IdTipoSeccionOK && formik.errors.IdTipoSeccionOK }
+                        disabled={isDeleteMode} //Si está eliminando que el campo no se pueda editar
                     />
                     <TextField
                         id="Secuencia"
@@ -165,6 +191,7 @@ const InfoAdModal = ({ InfoAdShowModal, setInfoAdShowModal, selectedShippingData
                         {...commonTextFieldProps}
                         error={ formik.touched.Secuencia && Boolean(formik.errors.Secuencia) }
                         helperText={ formik.touched.Secuencia && formik.errors.Secuencia }
+                        disabled={isDeleteMode} //Si está eliminando que el campo no se pueda editar
                     />
                 </DialogContent>
                 {/* FIC: Aqui van las acciones del usuario como son las alertas o botones */}
@@ -197,6 +224,7 @@ const InfoAdModal = ({ InfoAdShowModal, setInfoAdShowModal, selectedShippingData
                     </LoadingButton>
                     {/* FIC: Boton de Guardar. */}
                     <LoadingButton
+                        style={{ backgroundColor: isDeleteMode ? "#ff0000" : "" }}
                         color="primary"
                         loadingPosition="start"
                         startIcon={<SaveIcon />}
@@ -204,7 +232,7 @@ const InfoAdModal = ({ InfoAdShowModal, setInfoAdShowModal, selectedShippingData
                         type="submit"
                         disabled={!!mensajeExitoAlert}
                     >
-                        <span>{isEditMode ? "ACTUALIZAR" : "GUARDAR"}</span>
+                        <span>{isEditMode ? "ACTUALIZAR" : isDeleteMode ? "ELIMINAR" : "GUARDAR"}</span>
                     </LoadingButton>
                 </DialogActions>
             </form>

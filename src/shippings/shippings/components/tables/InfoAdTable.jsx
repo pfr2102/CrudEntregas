@@ -65,6 +65,7 @@ const InfoAdColumns = [
     
     const [isEditMode, setIsEditMode] = useState(false); //Para determinar si la modal está en modo de edicion/agregar (true=editar || false=agregar)
     const [editData, setEditData] = useState(false);//Para saber si hay que rellenar los textfield con datos en caso de estar en modo de edición
+    const [isDeleteMode, setIsDeleteMode] = useState(false); //Para saber si está en modo de eliminación o no
 
     //Con redux sacar la data que se envió del otro archivo (ShippingsTable)
     const selectedShippingData = useSelector((state) => state.shippingsReducer.selectedShippingData);
@@ -156,6 +157,7 @@ const InfoAdColumns = [
                           onClick={() => {
                             setInfoAdShowModal(true);
                             setIsEditMode(false);
+                            setIsDeleteMode(false);
                             setEditData(null);
                             }}>
                             <AddCircleIcon />
@@ -165,12 +167,19 @@ const InfoAdColumns = [
                           <IconButton
                           onClick={() => {
                             setInfoAdShowModal(true);
+                            setIsEditMode(true);
+                            setIsDeleteMode(false);
                           }}>
                             <EditIcon />
                           </IconButton>
                         </Tooltip>
                         <Tooltip title="Eliminar">
-                          <IconButton>
+                          <IconButton
+                          onClick={() => {
+                            setInfoAdShowModal(true);
+                            setIsEditMode(false);
+                            setIsDeleteMode(true);
+                          }}>
                             <DeleteIcon />
                           </IconButton>
                         </Tooltip>
@@ -193,10 +202,16 @@ const InfoAdColumns = [
               InfoAdShowModal={InfoAdShowModal}
               setInfoAdShowModal={setInfoAdShowModal}
               isEditMode={isEditMode}
-              row={isEditMode ? editData : null}
+              isDeleteMode={isDeleteMode}
+              row={isEditMode || isDeleteMode ? editData : null}
               reloadTable={() => setReloadTable(prevState => !prevState)} // Pasa la función para recargar la tabla
               selectedShippingData={selectedShippingData} //Pasar como prop los datos que sacamos de redux desde ShippingsTable para 
-              onClose={() => setInfoAdShowModal(false)}   //usarlos en InfoAdModal y consecuentemente en formik.
+              onClose={() => {                            //usarlos en InfoAdModal y consecuentemente en formik.
+                setInfoAdShowModal(false);
+                setIsEditMode(false); //Resetear el modo de edición
+                setEditData(null); //Limpiar la data de edición
+                setIsDeleteMode(false);
+              }}   
             />
           </Dialog>
 
