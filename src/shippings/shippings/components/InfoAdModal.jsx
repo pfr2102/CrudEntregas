@@ -14,22 +14,23 @@ import { InfoAdValues } from "../helpers/InfoAdValues";
 
 //SERVICES
 import { AddOneInfoAd } from "../services/remote/post/AddOneInfoAd";
+import { updateOneInfoAd } from "../services/remote/put/UpdateOneInfoAd";
 
-const InfoAdModal = ({ InfoAdShowModal, setInfoAdShowModal, selectedShippingData }) => {
+const InfoAdModal = ({ InfoAdShowModal, setInfoAdShowModal, selectedShippingData, reloadTable, isEditMode, row }) => {
     const [mensajeErrorAlert, setMensajeErrorAlert] = useState("");
     const [mensajeExitoAlert, setMensajeExitoAlert] = useState("");
     //Para ver la data que trae el documento completo desde el dispatch de ShippingsTable
     console.log("DATA YA PASADA EN INFOADMODAL AAAAAAA",selectedShippingData); 
 
-    //FIC: Definition Formik y Yup.
+    //FIC: Definition Formik y Yup.IdEntregaBK: row ? row.IdEntregaBK : "",
     const formik = useFormik({
         initialValues: {
-            IdEtiquetaOK: "",
-            IdEtiqueta: "",
-            Etiqueta: "",
-            Valor: "",
-            IdTipoSeccionOK: "",
-            Secuencia: null,
+            IdEtiquetaOK: row ? row.IdEtiquetaOK : "",
+            IdEtiqueta: row ? row.IdEtiqueta : "",
+            Etiqueta: row ? row.Etiqueta : "",
+            Valor: row ? row.Valor : "",
+            IdTipoSeccionOK: row ? row.IdTipoSeccionOK : "",
+            Secuencia: row ? row.Secuencia : null,
         },
         validationSchema: Yup.object({
             IdEtiquetaOK: Yup.string().required("Campo requerido"),
@@ -47,21 +48,44 @@ const InfoAdModal = ({ InfoAdShowModal, setInfoAdShowModal, selectedShippingData
             setMensajeExitoAlert(null);
 
             try {
-                //Usar InfoAdValues para obtener los valores definidos del subdocumento en el archivo del mismo nombre
-                const infoAdSubdocument = InfoAdValues(values);
-                
-                //Poner el Id del documento existente para pasar al servicio POST
-                const existingShippingId = selectedShippingData.IdEntregaOK;
+                if(isEditMode){
+                    console.log("SE ESTÁ ACTUALIZANDO RAAAAAAAAAH");
+                    const InfoAd = InfoAdValues(values);
+                    // Obtener el ID del subdocumento que se está editando
+                    const subdocumentId = row.IdEtiquetaOK;
+                    //Poner el Id del documento existente para pasar al servicio PUT
+                    const existingShippingId = selectedShippingData.IdEntregaOK;
 
-                //Pasar los parametros al servicio de POST del archivo AddOneInfoAd.jsx
-                //En el mismo orden se pasa: Id del documento existente || Los valores que el usuario pone en el form y que se sacan
-                //de formik || El objeto con los valores predefinidos (IdEtiquetaOK, IdEtiqueta, Etiqueta,...etc...)
-                await AddOneInfoAd(existingShippingId, values, infoAdSubdocument);
+                    InfoAd.IdEtiquetaOK = row.IdEtiquetaOK
+                    InfoAd.IdEtiqueta = row.IdEtiqueta
+                    InfoAd.Etiqueta = row.Etiqueta
+                    InfoAd.Valor = row.Valor
+                    InfoAd.IdTipoSeccionOK = row.IdTipoSeccionOK
+                    InfoAd.Secuencia = row.Secuencia
 
-                setMensajeExitoAlert("Info Adicional creada y guardada Correctamente");
+                    // Llamar al servicio de PUT para actualizar el subdocumento
+                    await updateOneInfoAd(existingShippingId, subdocumentId, values);
+                    
+                    reloadTable();
+                    setMensajeExitoAlert("Info Adicional actualizada correctamente");
+                }else{
+                    //Usar InfoAdValues para obtener los valores definidos del subdocumento en el archivo del mismo nombre
+                    const infoAdSubdocument = InfoAdValues(values);
+                    
+                    //Poner el Id del documento existente para pasar al servicio POST
+                    const existingShippingId = selectedShippingData.IdEntregaOK;
+
+                    //Pasar los parametros al servicio de POST del archivo AddOneInfoAd.jsx
+                    //En el mismo orden se pasa: Id del documento existente || Los valores que el usuario pone en el form y que se sacan
+                    //de formik || El objeto con los valores predefinidos (IdEtiquetaOK, IdEtiqueta, Etiqueta,...etc...)
+                    await AddOneInfoAd(existingShippingId, values, infoAdSubdocument);
+                    reloadTable();
+                    setMensajeExitoAlert("Info Adicional creada y guardada Correctamente");
+                }
             } catch (e) {
                 setMensajeExitoAlert(null);
-                setMensajeErrorAlert("No se pudo crear la Info Adicional");
+                setMensajeErrorAlert(isEditMode ? "No se pudo actualizar la info adicional" : 
+                                     "No se pudo guardar la info adicional");
             }
         },
     });
@@ -85,7 +109,7 @@ const InfoAdModal = ({ InfoAdShowModal, setInfoAdShowModal, selectedShippingData
                 {/* FIC: Aqui va el Titulo de la Modal */}
                 <DialogTitle>
                     <Typography component="h6">
-                        <strong>Agregar Nueva Info Adicional</strong>
+                        <strong>{isEditMode ? "Actualizar Info Adicional" : "Agregar Info Adicional"}</strong>
                     </Typography>
                 </DialogTitle>
                 {/* FIC: Aqui va un tipo de control por cada Propiedad de Institutos */}
@@ -180,7 +204,7 @@ const InfoAdModal = ({ InfoAdShowModal, setInfoAdShowModal, selectedShippingData
                         type="submit"
                         disabled={!!mensajeExitoAlert}
                     >
-                        <span>GUARDAR</span>
+                        <span>{isEditMode ? "ACTUALIZAR" : "GUARDAR"}</span>
                     </LoadingButton>
                 </DialogActions>
             </form>
