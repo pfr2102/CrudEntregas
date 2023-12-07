@@ -1,5 +1,6 @@
 import React from "react";
-import { Dialog, DialogContent, DialogTitle, Typography, TextField, DialogActions, Box, Alert } from "@mui/material";
+import { Dialog, DialogContent, DialogTitle, Typography, TextField, DialogActions, Box, Alert,
+         FormControlLabel, Checkbox, InputLabel, Select, MenuItem, FormHelperText } from "@mui/material";
 import { LoadingButton } from "@mui/lab";
 import CloseIcon from "@mui/icons-material/Close";
 import SaveIcon from "@mui/icons-material/Save";
@@ -16,6 +17,7 @@ import { ShippingValues } from "../helpers/ShippingsValues";
 import { AddOneShipping } from "../services/remote/post/AddOneShipping";
 import { UpdateOneShipping } from "../services/remote/put/UpdateOneShipping";
 import { DeleteOneShipping } from "../services/remote/del/DeleteOneShipping"; 
+import { GetAllOrders } from "../services/remote/get/GetAllOrders";
 
 //FEAK: UUID (Objeto ID Universal)
 import { v4 as genID } from "uuid";
@@ -23,6 +25,20 @@ import { v4 as genID } from "uuid";
 const AddShippingModal = ({ AddShippingShowModal, setAddShippingShowModal, onUpdateShippingData, isEditMode, isDeleteMode, row }) => {
     const [mensajeErrorAlert, setMensajeErrorAlert] = useState("");
     const [mensajeExitoAlert, setMensajeExitoAlert] = useState("");
+    const [ShippingsValuesLabel, setShippingsValuesLabel] = useState([]);
+
+    useEffect(() => {
+        getDataSelectShippingsOrder();
+    }, []);
+
+    async function getDataSelectShippingsOrder() {
+        try {
+            const Orders = await GetAllOrders(); // GET para sacar las ordenes
+            setShippingsValuesLabel(Orders);
+        } catch (e) {
+            console.error("Error al obtener órdenes de orders:", e);
+        }
+    }
 
     //Para principal (12 caracteres)
     const [IdGen, setIdGen] = useState(genID().replace(/-/g, "").substring(0, 12));
@@ -54,28 +70,23 @@ const AddShippingModal = ({ AddShippingShowModal, setAddShippingShowModal, onUpd
             setMensajeErrorAlert(null);
             setMensajeExitoAlert(null);
             try {
-                // console.log("ENTRÓ AL TRY!!!");
-                // console.log(isEditMode);
                 //Si la modal esta en modo de edición (osease en actualizar, PUT pues) pues se ejecuta la primera condición que es para
                 //actualizar
                 if(isEditMode) {
-                    console.log("SE ESTA ACTUALIZANDO RAAAAAAAAAH");
+                    console.log("SE ESTA ACTUALIZANDO");
                     const Shipping = ShippingValues(values);
                     console.log("<<Shipping>>", Shipping);
-                    // console.log("LA ID QUE SE PASA COMO PARAMETRO ES:", row._id);
                     //Estas lineas hacen una mexicanada de pasar los datos que tiene row.info_ad al arreglo vacío del modelo
                     //de ShippingsModel para NO PERDER los subdocumentos. Reitero, una mexicanada, pero funciona.
-                    //(Lo mismo pasa con envios)
+                    //(Lo mismo pasa con envios) ||Cambiar por patch de ser posible||
                     Shipping.info_ad = row.info_ad;
                     Shipping.envios = row.envios;
                     // Utiliza la función de actualización si estamos en modo de edición
-                    await UpdateOneShipping(Shipping, row.IdInstitutoOK, row.IdNegocioOK, row.IdEntregaOK); //se puede sacar el objectid con row._id para lo del fic aaaaaaaaaaaaaaaaaaa
+                    await UpdateOneShipping(Shipping, row.IdInstitutoOK, row.IdNegocioOK, row.IdEntregaOK); //se puede sacar el objectid con row._id
                     setMensajeExitoAlert("Envío actualizado Correctamente");
                     onUpdateShippingData(); //usar la función para volver a cargar los datos de la tabla y que se vea la actualizada
                 }else if(isDeleteMode){
-                    console.log("SE ESTA BORRANDO RAAAAAAAAAH");
-                    const Shipping = ShippingValues(values);
-                    console.log("<<Shipping>>", Shipping);
+                    console.log("SE ESTA BORRANDO");
                     // console.log("LA ID QUE SE PASA COMO PARAMETRO ES:", row._id);
                     // Utiliza la función de eliminar si estamos en modo de eliminación
                     await DeleteOneShipping(row.IdInstitutoOK, row.IdNegocioOK, row.IdEntregaOK);
@@ -128,16 +139,6 @@ const AddShippingModal = ({ AddShippingShowModal, setAddShippingShowModal, onUpd
         disabled: !!mensajeExitoAlert,
     };
 
-    //useEffect para si estamos actualizando el campo no se pueda editar, se usa dentro del mismo textfield
-    // Dentro del componente AddShippingModal
-    useEffect(() => {
-        // Si estamos en modo edición, deshabilita el campo
-        if (isEditMode) {
-        formik.setFieldValue("id_ordenOK", formik.values.IdEntregaOK); // Asegúrate de establecer el valor
-        formik.setFieldTouched("id_ordenOK", false); // También puedes desactivar el indicador de "touched" si lo deseas
-        }
-    }, [isEditMode]);
-  
     
     return(
         <Dialog
@@ -194,7 +195,7 @@ const AddShippingModal = ({ AddShippingShowModal, setAddShippingShowModal, onUpd
                         helperText={ formik.touched.IdEntregaBK && formik.errors.IdEntregaBK }
                         disabled={isDeleteMode} //Si está eliminando que el campo no se pueda editar
                     />
-                    <TextField
+                    {/* <TextField
                         id="IdOrdenOK"
                         label="IdOrdenOK*"
                         value={formik.values.IdOrdenOK}
@@ -202,7 +203,26 @@ const AddShippingModal = ({ AddShippingShowModal, setAddShippingShowModal, onUpd
                         error={ formik.touched.IdOrdenOK && Boolean(formik.errors.IdOrdenOK) }
                         helperText={ formik.touched.IdOrdenOK && formik.errors.IdOrdenOK }
                         disabled={isDeleteMode} //Si está eliminando que el campo no se pueda editar
-                    />
+                    /> */}
+                    <Select
+                        value={formik.values.IdOrdenOK}
+                        label="Selecciona una opción"
+                        onChange={formik.handleChange}
+                        name="IdOrdenOK" // FIC: Asegúrate que coincida con el nombre del campo
+                        onBlur={formik.handleBlur}
+                        disabled={!!mensajeExitoAlert || isDeleteMode}
+                    >
+                        {ShippingsValuesLabel.map((orden) => {
+                            return (
+                                <MenuItem
+                                    value={`${orden.IdOrdenOK}`}
+                                    key={orden.IdOrdenOK}
+                                >
+                                    {orden.IdOrdenOK}
+                                </MenuItem>
+                            );
+                        })}
+                    </Select>
                 </DialogContent>
                 {/* FIC: Aqui van las acciones del usuario como son las alertas o botones */}
                 <DialogActions

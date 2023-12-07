@@ -1,8 +1,21 @@
 import axios from "axios";
+import { getDetailRowReg } from "../../../helpers/Utils";
 
 export function UpdateOneInfoAd(InfoAd, idInstitutoOK, idNegocioOK, idEntregaOK, idEtiquetaOK) {
     console.log("<<EJECUTA>> API <<UpdateOneShipping>> Requiere:", InfoAd);
     return new Promise((resolve, reject) => {
+        // Obtener el detalle actual
+        const currentDetailRow = InfoAd.detail_row;
+
+        // Crear un nuevo registro para detail_row_reg
+        const newDetailRowReg = getDetailRowReg();
+
+        // Agregar el nuevo registro al detalle actual
+        currentDetailRow.detail_row_reg.push(newDetailRowReg);
+
+        // Actualizar el campo detail_row en InfoAd
+        InfoAd.detail_row = currentDetailRow;
+
         axios.put(`http://localhost:3020/api/pwa/shipping/subdocument/?IdInstitutoOK=${idInstitutoOK}&IdNegocioOK=${idNegocioOK}&IdEntregaOK=${idEntregaOK}&IdEtiquetaOK=${idEtiquetaOK}`, InfoAd)
             .then((response) => {
                 console.log("<<RESPONSE>> UpdateOneShipping", InfoAd);

@@ -1,5 +1,6 @@
 import React from "react";
-import { Dialog, DialogContent, DialogTitle, Typography, TextField, DialogActions, Box, Alert } from "@mui/material";
+import { Dialog, DialogContent, DialogTitle, Typography, TextField, DialogActions, Box, Alert,
+         FormControlLabel, Checkbox, InputLabel, Select, MenuItem, FormHelperText } from "@mui/material";
 import { LoadingButton } from "@mui/lab";
 import CloseIcon from "@mui/icons-material/Close";
 import SaveIcon from "@mui/icons-material/Save";
@@ -61,15 +62,16 @@ const InfoAdModal = ({ InfoAdShowModal, setInfoAdShowModal, selectedShippingData
                     const idInstituto = selectedShippingData.IdInstitutoOK;
                     const idNegocio = selectedShippingData.IdNegocioOK;
 
-                    InfoAd.IdEtiquetaOK = row.IdEtiquetaOK
-                    InfoAd.IdEtiqueta = row.IdEtiqueta
-                    InfoAd.Etiqueta = row.Etiqueta
-                    InfoAd.Valor = row.Valor
-                    InfoAd.IdTipoSeccionOK = row.IdTipoSeccionOK
-                    InfoAd.Secuencia = row.Secuencia
+                    // InfoAd.IdEtiquetaOK = row.IdEtiquetaOK
+                    // InfoAd.IdEtiqueta = row.IdEtiqueta
+                    // InfoAd.Etiqueta = row.Etiqueta
+                    // InfoAd.Valor = row.Valor
+                    // InfoAd.IdTipoSeccionOK = row.IdTipoSeccionOK
+                    // InfoAd.Secuencia = row.Secuencia
 
                     // Llamar al servicio de PUT para actualizar el subdocumento
-                    await UpdateOneInfoAd(values, idInstituto, idNegocio, existingShippingId, subdocumentId);
+                    //Poner el objeto de InfoAd = InfoAdValues o sino no genera el detail_row_reg.
+                    await UpdateOneInfoAd(InfoAd, idInstituto, idNegocio, existingShippingId, subdocumentId);
                     
                     reloadTable();
                     setMensajeExitoAlert("Info Adicional actualizada correctamente");
@@ -98,12 +100,14 @@ const InfoAdModal = ({ InfoAdShowModal, setInfoAdShowModal, selectedShippingData
                     //Pasar los parametros al servicio de POST del archivo AddOneInfoAd.jsx
                     //En el mismo orden se pasa: Id del documento existente || Los valores que el usuario pone en el form y que se sacan
                     //de formik || El objeto con los valores predefinidos (IdEtiquetaOK, IdEtiqueta, Etiqueta,...etc...)
-                    await AddOneInfoAd(existingShippingId, instituto, negocio, values, infoAdSubdocument);
+                    console.log("INFO DE DETAIL_ROW", infoAdSubdocument);
+                    await AddOneInfoAd(existingShippingId, instituto, negocio, infoAdSubdocument);
                     reloadTable();
                     setMensajeExitoAlert("Info Adicional creada y guardada Correctamente");
                 }
             } catch (e) {
                 setMensajeExitoAlert(null);
+                console.error("<<ERROR>> en onSubmit:", e);
                 setMensajeErrorAlert(isEditMode ? "No se pudo actualizar la info adicional" : 
                                      isDeleteMode ? "No se pudo eliminar la info adicional" : 
                                      "No se pudo guardar la info adicional");

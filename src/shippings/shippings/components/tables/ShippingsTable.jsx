@@ -57,7 +57,6 @@ const ShippingsColumns = [
     const [isEditMode, setIsEditMode] = useState(false); //Para determinar si la modal está en modo de edicion/agregar (true=editar || false=agregar)
     const [editData, setEditData] = useState(false);     //Para saber si hay que rellenar los textfield con datos en caso de estar en modo de edición
     const [isDeleteMode, setIsDeleteMode] = useState(false); //Para saber si está en modo de eliminación o no
-    const [selectedRowIndex, setSelectedRowIndex] = useState(null); //Para saber cual es la fila y pasarla para el color de la tabla
 
     const dispatch = useDispatch();
 
@@ -75,35 +74,28 @@ const ShippingsColumns = [
       fetchData();
     }, []);
 
-    //Al parecer MaterialReactTable no soporta directamente onRowClick por lo que se hace el useEffect con un querySelector
-    //que se le coloca a cada fila junto con un EventListener
+    //useEffect con querySelector que se le coloca a cada fila junto con un EventListener para manejar 
+    //los clics en la tabla y nos devuelva los datos del documento correspondiente
     //usar el useEffect para ejecutar cada que se haga un cambio en shippingsData
     useEffect(() => {
       const handleRowClick = (index) => {
         const row = shippingsData[index];
         //Aqui es donde se decide que hacer con la data que regresa el clic en la fila
-        console.log("<<ID DEL DOCUMENTO SELECCIONADO>>:", row.IdEntregaOK); //row.id_domicilioOK devuelve solo el id, debe funcionar con todo lo demas
-        //Poner el modo de editar y pasar la data               por lo que se puede usar formik??? para colocar la data en los textfield
+        console.log("<<ID DEL DOCUMENTO SELECCIONADO>>:", row.IdEntregaOK); //row.IdEntregaOK devuelve solo el id, debe funcionar con todo lo demas
+        //Poner el modo de editar y pasar la data                           por lo que se puede usar formik??? para colocar la data en los textfield
         setIsEditMode(true);
         setEditData(row);
         console.log("INDICE SELECCIONADO",index);
-        setSelectedRowIndex(index);
         //Dispatch para enviar data a redux y que este la pase a InfoAdTable
-        dispatch(SET_SELECTED_SHIPPING_DATA(row)); //SE PASA COMPLETO PORQUE SE NECESITA EL ID DEL DOCUMENTO PRINCIPAL PARA INSERTAR EL SUBDOCUMENTO
-                                                   //SI QUISIERAS PASAR SOLO UN CAMPO O SUBDOCUMENTO SERIA CON row.info_ad o con row.IdEntregaOK
-        // selectedRowIndex.style.backgroundColor = "#ff0000";
-        //SUBDOCUMENTO AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-        // console.log("<<SUBDOCUMENTO AAAAAAAAA>>:", row.info_ad[0].Etiqueta); //CONSULTAR CAMPO EN ESPECIFICO DE LOS SUBDOCUMENTOS
-        // console.log("<<SUBDOCUMENTO AAAAAAAAA>>:", row.info_ad); //CONSULTAR SUBDOCUMENTO COMPLETO AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-        //SUBDOCUMENTO AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+        dispatch(SET_SELECTED_SHIPPING_DATA(row)); 
+        //SE PASA COMPLETO PORQUE SE NECESITA EL ID DEL DOCUMENTO PRINCIPAL PARA INSERTAR EL SUBDOCUMENTO
+        //SI QUISIERAS PASAR SOLO UN CAMPO O SUBDOCUMENTO SERIA CON row.info_ad o con row.IdEntregaOK
       };
       const rows = document.querySelectorAll('.MuiTableRow-root'); //Se seleccionan todas las filas de la tabla con la clase .MuiTableRow-root
-  
       //se añade un EventListener a cada fila y cuando se hace clic se ejecuta la función handleRowClick con el dato correspondiente de shippingsData
       rows.forEach((row, index) => { 
         row.addEventListener('click', () => handleRowClick(index-1)); //Aqui es index-1 porque index me traía la fila siguiente a la que presionabas
       });
-
       //Cuando shippingsData cambia se "limpian" los EventListeners para evitar posibles problemas de memoria o fuga de eventos
       return () => {
         rows.forEach((row, index) => {
@@ -113,11 +105,12 @@ const ShippingsColumns = [
     }, [shippingsData]);
 
     //PARA LA FUNCIÓN onUpdateShippingsData en AddShippingsModal.jsx
+    //Esta es la función para hacer un "refresh" a la tabla
     const handleUpdateShippingData = async () => {
       try {
           const updatedShippingsData = await getAllShippings();
           setShippingsData(updatedShippingsData);
-          console.log("DATA EN EL editData RAAAH", editData); //Para saber que datos tiene almacenados editData
+          console.log("DATA EN EL editData", editData); //Para saber que datos tiene almacenados editData
       } catch (error) {
           console.error("Error updating shipping data:", error);
       }
@@ -131,15 +124,6 @@ const ShippingsColumns = [
             data={shippingsData}
             initialState={{ density: "compact", showGlobalFilter: true }}
             state={{isLoading: loadingTable}}
-            // muiTableBodyRowProps={({ row, index }) => {
-            //   console.log("Contenido de rowIndex:", index);
-            //   return {
-            //     sx: {
-            //       cursor: loadingTable ? "not-allowed" : "pointer",
-            //       backgroundColor: selectedRowIndex === index ? "#ff0000" : "inherit",
-            //     },
-            //   };
-            // }}
             renderTopToolbarCustomActions={({ table }) => (
                 <>
                   {/* ------- BARRA DE ACCIONES ------ */}
@@ -193,13 +177,13 @@ const ShippingsColumns = [
               setAddShippingShowModal={setAddShippingShowModal}
               onUpdateShippingData={handleUpdateShippingData} //PARTE DE LA FUNCION handleUpdateShippingData
               isEditMode={isEditMode}
-              isDeleteMode={isDeleteMode}
-              initialData={isEditMode || isDeleteMode ? editData : null} //Para que en ambos modales de eliminar y 
-              row={isEditMode || isDeleteMode ? editData : null}         //actualizar se ponga la info si es que hay
+              isDeleteMode={isDeleteMode} 
+              row={isEditMode || isDeleteMode ? editData : null}  //Para que en ambos modales de eliminar y actualizar se ponga 
+                                                                  //la info si es que hay datos
               onClose={() => {
                 setAddShippingShowModal(false); //Cerrar la modal
                 setIsEditMode(false); //Resetear el modo de edición
-                setEditData(null); //Limpiar la data de ediciónS
+                setEditData(null); //Limpiar la data de edición
               }}
             />
           </Dialog>

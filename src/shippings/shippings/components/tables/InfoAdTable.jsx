@@ -52,7 +52,7 @@ const InfoAdColumns = [
   ];
 
   //FIC: Table - FrontEnd.
-  const InfoAdTable = ({ onReloadTable }) => {
+  const InfoAdTable = ({}) => {
 
     //FIC: controlar el estado del indicador (loading).
     const [loadingTable, setLoadingTable] = useState(true);
@@ -114,6 +114,7 @@ const InfoAdColumns = [
       };
     }, []);
 
+    //useEffect para al hacer clic en la tabla nos traiga los datos del docuemnto de esa fila
     useEffect(() => {
       const handleRowClick = (index) => {
         const row = InfoAdData[index];
@@ -157,8 +158,8 @@ const InfoAdColumns = [
                           onClick={() => {
                             setInfoAdShowModal(true);
                             setIsEditMode(false);
-                            setIsDeleteMode(false);
                             setEditData(null);
+                            setIsDeleteMode(false);
                             }}>
                             <AddCircleIcon />
                           </IconButton>
@@ -202,8 +203,8 @@ const InfoAdColumns = [
               InfoAdShowModal={InfoAdShowModal}
               setInfoAdShowModal={setInfoAdShowModal}
               isEditMode={isEditMode}
-              isDeleteMode={isDeleteMode}
               row={isEditMode || isDeleteMode ? editData : null}
+              isDeleteMode={isDeleteMode}
               reloadTable={() => setReloadTable(prevState => !prevState)} // Pasa la función para recargar la tabla
               selectedShippingData={selectedShippingData} //Pasar como prop los datos que sacamos de redux desde ShippingsTable para 
               onClose={() => {                            //usarlos en InfoAdModal y consecuentemente en formik.
