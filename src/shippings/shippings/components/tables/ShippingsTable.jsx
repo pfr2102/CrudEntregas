@@ -50,7 +50,7 @@ const ShippingsColumns = [
     const [loadingTable, setLoadingTable] = useState(true);
     //FIC: controlar el estado de la data de shippings.
     const [shippingsData, setShippingsData] = useState([]);
-    //FIC: controlar el estado que muesta u oculta la modal de nuevo Instituto.
+    //FIC: controlar el estado que muesta u oculta la modal de nuevo Shippings.
     const [AddShippingShowModal, setAddShippingShowModal] = useState(false);
 
     //PARA CONTROLAR LO DE GUARDAR O ACTUALIZAR
