@@ -15,6 +15,8 @@ import EnviosModal from "../EnviosModal";
 
 //REDUX
 import { useSelector } from "react-redux";
+import { useDispatch } from 'react-redux';
+import { SET_SELECTED_ENVIO_DATA } from "../../../redux/slices/shippingsSlice";
 
 //FIC: Columns Table Definition.
 const EnviosColumns = [
@@ -55,10 +57,14 @@ const EnviosColumns = [
     const [editData, setEditData] = useState(false);//Para saber si hay que rellenar los textfield con datos en caso de estar en modo de edición
     const [isDeleteMode, setIsDeleteMode] = useState(false); //Para saber si está en modo de eliminación o no
 
+    const dispatch = useDispatch();
+
     //Con redux sacar la data que se envió del otro archivo (ShippingsTable)
     const selectedShippingData = useSelector((state) => state.shippingsReducer.selectedShippingData);
     // console.log(selectedShippingData);
 
+    //ESTOS DATOS, SOBRETODO IdEntregaOK son los que definen que docuemento sacar y la const de subdoc define que subdocumento sacar
+    //del documento seleccionado
     const instituto = selectedShippingData.IdInstitutoOK;
     const negocio = selectedShippingData.IdNegocioOK;
     const entrega = selectedShippingData.IdEntregaOK;
@@ -90,11 +96,13 @@ const EnviosColumns = [
       const handleRowClick = (index) => {
         const row = EnviosData[index];
         //Aqui es donde se decide que hacer con la data que regresa el clic en la fila
-        console.log("<<ID DEL DOCUMENTO SELECCIONADO>>:", row.IdEntregaOK); //row.id_domicilioOK devuelve solo el id, debe funcionar con todo lo demas
+        console.log("<<ID DEL DOCUMENTO SELECCIONADO>>:", row.IdDomicilioOK); //row.id_domicilioOK devuelve solo el id, debe funcionar con todo lo demas
         //Poner el modo de editar y pasar la data               por lo que se puede usar formik??? para colocar la data en los textfield
         setIsEditMode(true);
         setEditData(row);
         console.log("INDICE SELECCIONADO",index);
+        //Dispatch para enviar data a redux y que este la pase a EnvInfoAdTable para saber el IdDomicilio
+        dispatch(SET_SELECTED_ENVIO_DATA(row)); //Para pasar la data del envio presionado a los subdocs
       };
       const rows = document.querySelectorAll('.MuiTableRow-root'); //Se seleccionan todas las filas de la tabla con la clase .MuiTableRow-root
   

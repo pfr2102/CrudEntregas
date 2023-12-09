@@ -1,9 +1,9 @@
 import axios from "axios";
 
-export function GetAllSubdoc(IdInstitutoOK, IdNegocioOK, IdEntregaOK, subdocument) {
+export function GetEnviosId(IdInstitutoOK, IdNegocioOK, IdEntregaOK, idDomicilio) {
     return new Promise((resolve, reject) => {
-      const queryParams = `?IdInstitutoOK=${IdInstitutoOK}&IdNegocioOK=${IdNegocioOK}&IdEntregaOK=${IdEntregaOK}&subdocument=${subdocument}`;
-      axios.get(`http://localhost:3020/api/pwa/shipping/subdocument${queryParams}`)
+      const queryParams = `?IdInstitutoOK=${IdInstitutoOK}&IdNegocioOK=${IdNegocioOK}&IdEntregaOK=${IdEntregaOK}&IdDomicilioOK=${idDomicilio}`;
+      axios.get(`http://localhost:3020/api/pwa/shipping/one/envio${queryParams}`)
         .then((response) => {
           const data = response.data;
           if (!data.success) {
@@ -14,7 +14,7 @@ export function GetAllSubdoc(IdInstitutoOK, IdNegocioOK, IdEntregaOK, subdocumen
             resolve([]);
           } else if (data.success) {
             const orders = data.data[0].dataRes;
-            console.log(`Coleccion: <<${subdocument}>>`, orders);
+            console.log(`Coleccion: <<Envios>>`, orders);
             resolve(JSON.parse(JSON.stringify(orders))); // Resuelve la promesa y hace una copia profunda
           }
         })

@@ -8,18 +8,18 @@ import EditIcon from "@mui/icons-material/Edit";
 import InfoIcon from "@mui/icons-material/Info";
 import DeleteIcon from "@mui/icons-material/Delete";
 //FIC: DB
-import { getAllShippings } from "../../services/remote/get/GetAllShippings";
-import { GetAllSubdoc } from "../../services/remote/get/GetAllInfoAd";
+// import { GetAllSubdoc } from "../../services/remote/get/GetAllInfoAd";
+import { GetEnviosId } from "../../services/remote/get/GetEnviosId";
 
 //FEAK: MODALS
-import InfoAdModal from "../InfoAdModal";
+import EnvInfoAdModal from "../EnvInfoAdModal";
 
 //REDUX
 import { useSelector } from "react-redux";
 import { SET_SELECTED_SHIPPING_DATA } from "../../../redux/slices/shippingsSlice";
 
 //FIC: Columns Table Definition.
-const InfoAdColumns = [
+const EnvInfoAdColumns = [
     {
       accessorKey: "IdEtiquetaOK",
       header: "Id Etiqueta OK",
@@ -53,45 +53,45 @@ const InfoAdColumns = [
   ];
 
   //FIC: Table - FrontEnd.
-  const InfoAdTable = ({}) => {
+  const EnvInfoAdTable = ({}) => {
 
     //FIC: controlar el estado del indicador (loading).
     const [loadingTable, setLoadingTable] = useState(true);
     //FIC: controlar el estado de la data de InfoAd.
-    const [InfoAdData, setInfoAdData] = useState([]);
+    const [EnvInfoAdData, setEnvInfoAdData] = useState([]);
     //FIC: controlar el estado que muesta u oculta la modal de nuevo InfoAd.
-    const [InfoAdShowModal, setInfoAdShowModal] = useState(false);
-    const [triggerReloadTable, setTriggerReloadTable] = useState(false); //Para hacer la recarga de la tabla
+    const [EnvInfoAdShowModal, setEnvInfoAdShowModal] = useState(false);
     
     const [isEditMode, setIsEditMode] = useState(false); //Para determinar si la modal está en modo de edicion/agregar (true=editar || false=agregar)
     const [editData, setEditData] = useState(false);//Para saber si hay que rellenar los textfield con datos en caso de estar en modo de edición
     const [isDeleteMode, setIsDeleteMode] = useState(false); //Para saber si está en modo de eliminación o no
+    const [triggerReloadTable, setTriggerReloadTable] = useState(false); //Para hacer la recarga de la tabla
 
-    //Con redux sacar la data que se envió del otro archivo (ShippingsTable)
+    //Con redux sacar la data que se envió del otro archivo (EnviosTable.jsx)
     const selectedShippingData = useSelector((state) => state.shippingsReducer.selectedShippingData);
+    const selectedEnvioData = useSelector((state) => state.shippingsReducer.selectedEnvioData);
     // console.log(selectedShippingData);
 
+    //Solicitud GET con los datos que hicimos clic en la tabla principal (selectedShippingData) y tabla de envios (selectedEnvioData)
     const instituto = selectedShippingData.IdInstitutoOK;
     const negocio = selectedShippingData.IdNegocioOK;
     const entrega = selectedShippingData.IdEntregaOK;
-    const subdoc = 'info_ad'
-    // console.log("DATOS PASADOSAAAA", instituto, negocio, entrega);
-    // const InfoAdDATA = GetAllSubdoc(instituto, negocio, entrega, subdoc);
+    const domicilio = selectedEnvioData.IdDomicilioOK;
 
     useEffect(() => {
       async function fetchData() {
         try {
-          const AllInfoAdData = await GetAllSubdoc(instituto, negocio, entrega, subdoc);
-          console.log("DATOS DEL GET SUBDOC", AllInfoAdData);
-          setInfoAdData(AllInfoAdData);
+          const AllInfoAdData = await GetEnviosId(instituto, negocio, entrega, domicilio);
+          console.log("DATOS DEL GET SUBDOC OUYEA", AllInfoAdData.info_ad);
+          setEnvInfoAdData(AllInfoAdData.info_ad);
           setLoadingTable(false);
         } catch (error) {
-          console.error("Error al obtener los envios en useEffect de InfoAdTable:", error);
+          console.error("Error al obtener los envios en useEffect de EnvInfoAdTable:", error);
         }
       }
       fetchData();
     }, [triggerReloadTable]);
-
+    
     //RECARGA DE TABLA
     const reloadTableData = () => {
       setTriggerReloadTable(!triggerReloadTable);
@@ -100,7 +100,7 @@ const InfoAdColumns = [
     //useEffect para al hacer clic en la tabla nos traiga los datos del docuemnto de esa fila
     useEffect(() => {
       const handleRowClick = (index) => {
-        const row = InfoAdData[index];
+        const row = EnvInfoAdData[index];
         //Aqui es donde se decide que hacer con la data que regresa el clic en la fila
         console.log("<<ID DEL DOCUMENTO SELECCIONADO>>:", row.IdEtiquetaOK); //row.id_domicilioOK devuelve solo el id, debe funcionar con todo lo demas
         //Poner el modo de editar y pasar la data               por lo que se puede usar formik??? para colocar la data en los textfield
@@ -121,14 +121,14 @@ const InfoAdColumns = [
           row.removeEventListener('click', () => handleRowClick(index-1));
         });
       };
-    }, [InfoAdData]);
+    }, [EnvInfoAdData]);
 
     return (
         <Box>
           <Box>
             <MaterialReactTable
-              columns={InfoAdColumns}
-              data={InfoAdData}
+              columns={EnvInfoAdColumns}
+              data={EnvInfoAdData}
               state={{isLoading: loadingTable}}
               initialState={{ density: "compact", showGlobalFilter: true }}
               renderTopToolbarCustomActions={({ table }) => (
@@ -139,7 +139,7 @@ const InfoAdColumns = [
                         <Tooltip title="Agregar">
                           <IconButton 
                           onClick={() => {
-                            setInfoAdShowModal(true);
+                            setEnvInfoAdShowModal(true);
                             setIsEditMode(false);
                             setEditData(null);
                             setIsDeleteMode(false);
@@ -150,7 +150,7 @@ const InfoAdColumns = [
                         <Tooltip title="Editar">
                           <IconButton
                           onClick={() => {
-                            setInfoAdShowModal(true);
+                            setEnvInfoAdShowModal(true);
                             setIsEditMode(true);
                             setIsDeleteMode(false);
                           }}>
@@ -160,7 +160,7 @@ const InfoAdColumns = [
                         <Tooltip title="Eliminar">
                           <IconButton
                           onClick={() => {
-                            setInfoAdShowModal(true);
+                            setEnvInfoAdShowModal(true);
                             setIsEditMode(false);
                             setIsDeleteMode(true);
                           }}>
@@ -181,17 +181,18 @@ const InfoAdColumns = [
           </Box>
 
           {/* M O D A L E S */}   
-          <Dialog open={InfoAdShowModal}>
-            <InfoAdModal
-              InfoAdShowModal={InfoAdShowModal}
-              setInfoAdShowModal={setInfoAdShowModal}
+          <Dialog open={EnvInfoAdShowModal}>
+            <EnvInfoAdModal
+              EnvInfoAdShowModal={EnvInfoAdShowModal}
+              setEnvInfoAdShowModal={setEnvInfoAdShowModal}
               isEditMode={isEditMode}
               row={isEditMode || isDeleteMode ? editData : null}
               isDeleteMode={isDeleteMode}
               reloadTable={reloadTableData} //Pasar como prop la recarga de la tabla
-              selectedShippingData={selectedShippingData} //Pasar como prop los datos que sacamos de redux desde ShippingsTable para 
+              selectedShippingData={selectedShippingData}
+              selectedEnvioData={selectedEnvioData} //Pasar como prop los datos que sacamos de redux desde ShippingsTable para 
               onClose={() => {                            //usarlos en InfoAdModal y consecuentemente en formik.
-                setInfoAdShowModal(false);
+                setEnvInfoAdShowModal(false);
                 setIsEditMode(false); //Resetear el modo de edición
                 setEditData(null); //Limpiar la data de edición
                 setIsDeleteMode(false);
@@ -203,4 +204,4 @@ const InfoAdColumns = [
       );
   };
 
-export default InfoAdTable;
+export default EnvInfoAdTable;
