@@ -9,7 +9,7 @@ export function EnviosModel() {
         info_ad: [],
         productos: [],
         estatus: [],
-        rastreos: []
+        rastreos: {},
     };
-    return Envios
-};
+    return Envios;
+}

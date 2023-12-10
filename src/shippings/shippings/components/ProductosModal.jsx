@@ -11,14 +11,14 @@ import { useFormik } from "formik";
 import * as Yup from "yup";
 
 //HELPERS
-import { EnvInfoAdValues } from "../helpers/EnvInfoAdValues";
+import { ProductosValues } from "../helpers/ProductosValues";
 
 //SERVICES
-import { AddOneEnvInfoAd } from "../services/remote/post/AddOneEnvInfoAd";
-import { UpdateOneEnvInfoAd } from "../services/remote/put/UpdateOneEnvInfoAd";
-import { DeleteOneEnvInfoAd } from "../services/remote/del/DeleteOneEnvInfoAd";
+import { AddOneProducto } from "../services/remote/post/AddOneProducto";
+import { UpdateOneProducto } from "../services/remote/put/UpdateOneProducto";
+import { DeleteOneProducto } from "../services/remote/del/DeleteOneProducto";
 
-const EnvInfoAdModal = ({ EnvInfoAdShowModal, setEnvInfoAdShowModal, selectedEnvioData, selectedShippingData, 
+const ProductosModal = ({ ProductosShowModal, setProductosShowModal, selectedEnvioData, selectedShippingData, 
                           reloadTable, isEditMode, isDeleteMode, row }) => {
     const [mensajeErrorAlert, setMensajeErrorAlert] = useState("");
     const [mensajeExitoAlert, setMensajeExitoAlert] = useState("");
@@ -30,20 +30,20 @@ const EnvInfoAdModal = ({ EnvInfoAdShowModal, setEnvInfoAdShowModal, selectedEnv
     //FIC: Definition Formik y Yup
     const formik = useFormik({
         initialValues: {
-            IdEtiquetaOK: row ? row.IdEtiquetaOK : "",
-            IdEtiqueta: row ? row.IdEtiqueta : "",
-            Etiqueta: row ? row.Etiqueta : "",
-            Valor: row ? row.Valor : "",
-            IdTipoSeccionOK: row ? row.IdTipoSeccionOK : "",
-            Secuencia: row ? row.Secuencia : null,
+            IdProdServOK: row ? row.IdProdServOK : "",
+            IdPresentaOK: row ? row.IdPresentaOK : "",
+            DesProdServ: row ? row.DesProdServ : "",
+            DesPresenta: row ? row.DesPresenta : "",
+            CantidadPed: row ? row.CantidadPed : null,
+            CantidadEnt: row ? row.CantidadEnt : null,
         },
         validationSchema: Yup.object({
-            IdEtiquetaOK: Yup.string().required("Campo requerido"),
-            IdEtiqueta: Yup.string().required("Campo requerido"),
-            Etiqueta: Yup.string().required("Campo requerido"),
-            Valor: Yup.string().required("Campo requerido"),
-            IdTipoSeccionOK: Yup.string().required("Campo requerido"),
-            Secuencia: Yup.string().required("Campo requerido"),
+            IdProdServOK: Yup.string().required("Campo requerido"),
+            IdPresentaOK: Yup.string().required("Campo requerido"),
+            DesProdServ: Yup.string().required("Campo requerido"),
+            DesPresenta: Yup.string().required("Campo requerido"),
+            CantidadPed: Yup.string().required("Campo requerido"),
+            CantidadEnt: Yup.string().required("Campo requerido"),
         }),
         onSubmit: async (values) => {
             console.log("FIC: entro al onSubmit despues de hacer click en boton Guardar");
@@ -55,9 +55,9 @@ const EnvInfoAdModal = ({ EnvInfoAdShowModal, setEnvInfoAdShowModal, selectedEnv
             try {
                 if(isEditMode){
                     console.log("SE ESTÁ ACTUALIZANDO RAAAAAAAAAH");
-                    const InfoAd = EnvInfoAdValues(values);
+                    const Productos = ProductosValues(values);
                     // Obtener el ID del subdocumento que se está editando
-                    const subdocumentId = row.IdEtiquetaOK;
+                    const subdocumentId = row.IdPresentaOK;
                     //Poner el Id del documento existente para pasar al servicio PUT
                     const existingShippingId = selectedShippingData.IdEntregaOK;
                     const idInstituto = selectedShippingData.IdInstitutoOK;
@@ -72,27 +72,26 @@ const EnvInfoAdModal = ({ EnvInfoAdShowModal, setEnvInfoAdShowModal, selectedEnv
                     // InfoAd.Secuencia = row.Secuencia
 
                     // Llamar al servicio de PUT para actualizar el subdocumento
-                    //Poner el objeto de InfoAd = InfoAdValues o sino no genera el detail_row_reg.
-                    await UpdateOneEnvInfoAd(InfoAd, idInstituto, idNegocio, existingShippingId, idDomicilio, subdocumentId);
+                    await UpdateOneProducto(Productos, idInstituto, idNegocio, existingShippingId, idDomicilio, subdocumentId);
                     
                     reloadTable();
-                    setMensajeExitoAlert("Info Adicional actualizada correctamente");
+                    setMensajeExitoAlert("Producto actualizado correctamente");
                 }else if(isDeleteMode){
                     console.log("SE ESTÁ BORRANDO RAAAAAAAAAH");
                     // Obtener el ID del subdocumento que se está editando
-                    const subdocumentId = row.IdEtiquetaOK;
+                    const subdocumentId = row.IdPresentaOK;
                     //Poner el Id del documento existente para pasar al servicio DELETE
                     const existingShippingId = selectedShippingData.IdEntregaOK;
                     const idInstituto = selectedShippingData.IdInstitutoOK;
                     const idNegocio = selectedShippingData.IdNegocioOK;
                     const idDomicilio = selectedEnvioData.IdDomicilioOK;
 
-                    await DeleteOneEnvInfoAd(idInstituto, idNegocio, existingShippingId, idDomicilio, subdocumentId);
+                    await DeleteOneProducto(idInstituto, idNegocio, existingShippingId, idDomicilio, subdocumentId);
                     reloadTable();
-                    setMensajeExitoAlert("Info Adicional eliminada correctamente");
+                    setMensajeExitoAlert("Producto eliminado correctamente");
                 }else{
                     //Usar InfoAdValues para obtener los valores definidos del subdocumento en el archivo del mismo nombre
-                    const infoAdSubdocument = EnvInfoAdValues(values);
+                    const Productos = ProductosValues(values);
                     
                     //Poner el Id del documento existente para pasar al servicio POST
                     const existingShippingId = selectedShippingData.IdEntregaOK;
@@ -104,16 +103,16 @@ const EnvInfoAdModal = ({ EnvInfoAdShowModal, setEnvInfoAdShowModal, selectedEnv
                     //En el mismo orden se pasa: Id del documento existente || Los valores que el usuario pone en el form y que se sacan
                     //de formik || El objeto con los valores predefinidos (IdEtiquetaOK, IdEtiqueta, Etiqueta,...etc...)
                     // console.log("INFO DE DETAIL_ROW", infoAdSubdocument);
-                    await AddOneEnvInfoAd(existingShippingId, instituto, negocio, domicilio, infoAdSubdocument);
+                    await AddOneProducto(existingShippingId, instituto, negocio, domicilio, Productos);
                     reloadTable();
-                    setMensajeExitoAlert("Info Adicional creada y guardada Correctamente");
+                    setMensajeExitoAlert("Producto creado y guardado Correctamente");
                 }
             } catch (e) {
                 setMensajeExitoAlert(null);
                 console.error("<<ERROR>> en onSubmit:", e);
-                setMensajeErrorAlert(isEditMode ? "No se pudo actualizar la info adicional" : 
-                                     isDeleteMode ? "No se pudo eliminar la info adicional" : 
-                                     "No se pudo guardar la info adicional");
+                setMensajeErrorAlert(isEditMode ? "No se pudo actualizar los productos" : 
+                                     isDeleteMode ? "No se pudo eliminar los productos" : 
+                                     "No se pudo guardar los productos");
             }
         },
     });
@@ -129,15 +128,15 @@ const EnvInfoAdModal = ({ EnvInfoAdShowModal, setEnvInfoAdShowModal, selectedEnv
 
     return(
         <Dialog
-            open={EnvInfoAdShowModal}
-            onClose={() => setEnvInfoAdShowModal(false)}
+            open={ProductosShowModal}
+            onClose={() => setProductosShowModal(false)}
             fullWidth
         >
             <form onSubmit={formik.handleSubmit}>
                 {/* FIC: Aqui va el Titulo de la Modal */}
                 <DialogTitle>
                     <Typography component="h6">
-                        <strong>{isEditMode ? "ACTUALIZAR INFO ADICIONAL" : isDeleteMode ? "ELIMINAR INFO ADICIONAL" : "AGREGAR INFO ADICIONAL"}</strong>
+                        <strong>{isEditMode ? "ACTUALIZAR PRODUCTO" : isDeleteMode ? "ELIMINAR PRODUCTO" : "AGREGAR PRODUCTO"}</strong>
                     </Typography>
                 </DialogTitle>
                 {/* FIC: Aqui va un tipo de control por cada Propiedad de Institutos */}
@@ -147,57 +146,57 @@ const EnvInfoAdModal = ({ EnvInfoAdShowModal, setEnvInfoAdShowModal, selectedEnv
                 >
                     {/* FIC: Campos de captura o selección */}
                     <TextField
-                        id="IdEtiquetaOK"
-                        label="IdEtiquetaOK*"
-                        value={formik.values.IdEtiquetaOK}
+                        id="IdProdServOK"
+                        label="IdProdServOK*"
+                        value={formik.values.IdProdServOK}
                         {...commonTextFieldProps}
-                        error={ formik.touched.IdEtiquetaOK && Boolean(formik.errors.IdEtiquetaOK) }
-                        helperText={ formik.touched.IdEtiquetaOK && formik.errors.IdEtiquetaOK }
+                        error={ formik.touched.IdProdServOK && Boolean(formik.errors.IdProdServOK) }
+                        helperText={ formik.touched.IdProdServOK && formik.errors.IdProdServOK }
                         disabled={isDeleteMode} //Si está eliminando que el campo no se pueda editar
                     />
                     <TextField
-                        id="IdEtiqueta"
-                        label="IdEtiqueta*"
-                        value={formik.values.IdEtiqueta}
+                        id="IdPresentaOK"
+                        label="IdPresentaOK*"
+                        value={formik.values.IdPresentaOK}
                         {...commonTextFieldProps}
-                        error={ formik.touched.IdEtiqueta && Boolean(formik.errors.IdEtiqueta) }
-                        helperText={ formik.touched.IdEtiqueta && formik.errors.IdEtiqueta }
+                        error={ formik.touched.IdPresentaOK && Boolean(formik.errors.IdPresentaOK) }
+                        helperText={ formik.touched.IdPresentaOK && formik.errors.IdPresentaOK }
                         disabled={isDeleteMode} //Si está eliminando que el campo no se pueda editar
                     />
                     <TextField
-                        id="Etiqueta"
-                        label="Etiqueta*"
-                        value={formik.values.Etiqueta}
+                        id="DesProdServ"
+                        label="DesProdServ*"
+                        value={formik.values.DesProdServ}
                         {...commonTextFieldProps}
-                        error={ formik.touched.Etiqueta && Boolean(formik.errors.Etiqueta) }
-                        helperText={ formik.touched.Etiqueta && formik.errors.Etiqueta }
+                        error={ formik.touched.DesProdServ && Boolean(formik.errors.DesProdServ) }
+                        helperText={ formik.touched.DesProdServ && formik.errors.DesProdServ }
                         disabled={isDeleteMode} //Si está eliminando que el campo no se pueda editar
                     />
                     <TextField
-                        id="Valor"
-                        label="Valor*"
-                        value={formik.values.Valor}
+                        id="DesPresenta"
+                        label="DesPresenta*"
+                        value={formik.values.DesPresenta}
                         {...commonTextFieldProps}
-                        error={ formik.touched.Valor && Boolean(formik.errors.Valor) }
-                        helperText={ formik.touched.Valor && formik.errors.Valor }
+                        error={ formik.touched.DesPresenta && Boolean(formik.errors.DesPresenta) }
+                        helperText={ formik.touched.DesPresenta && formik.errors.DesPresenta }
                         disabled={isDeleteMode} //Si está eliminando que el campo no se pueda editar
                     />
                     <TextField
-                        id="IdTipoSeccionOK"
-                        label="IdTipoSeccionOK*"
-                        value={formik.values.IdTipoSeccionOK}
+                        id="CantidadPed"
+                        label="CantidadPed*"
+                        value={formik.values.CantidadPed}
                         {...commonTextFieldProps}
-                        error={ formik.touched.IdTipoSeccionOK && Boolean(formik.errors.IdTipoSeccionOK) }
-                        helperText={ formik.touched.IdTipoSeccionOK && formik.errors.IdTipoSeccionOK }
+                        error={ formik.touched.CantidadPed && Boolean(formik.errors.CantidadPed) }
+                        helperText={ formik.touched.CantidadPed && formik.errors.CantidadPed }
                         disabled={isDeleteMode} //Si está eliminando que el campo no se pueda editar
                     />
                     <TextField
-                        id="Secuencia"
-                        label="Secuencia*"
-                        value={formik.values.Secuencia}
+                        id="CantidadEnt"
+                        label="CantidadEnt*"
+                        value={formik.values.CantidadEnt}
                         {...commonTextFieldProps}
-                        error={ formik.touched.Secuencia && Boolean(formik.errors.Secuencia) }
-                        helperText={ formik.touched.Secuencia && formik.errors.Secuencia }
+                        error={ formik.touched.CantidadEnt && Boolean(formik.errors.CantidadEnt) }
+                        helperText={ formik.touched.CantidadEnt && formik.errors.CantidadEnt }
                         disabled={isDeleteMode} //Si está eliminando que el campo no se pueda editar
                     />
                 </DialogContent>
@@ -225,7 +224,7 @@ const EnvInfoAdModal = ({ EnvInfoAdShowModal, setEnvInfoAdShowModal, selectedEnv
                         loadingPosition="start"
                         startIcon={<CloseIcon />}
                         variant="outlined"
-                        onClick={() => setEnvInfoAdShowModal(false)}
+                        onClick={() => setProductosShowModal(false)}
                     >
                         <span>CERRAR</span>
                     </LoadingButton>
@@ -246,4 +245,4 @@ const EnvInfoAdModal = ({ EnvInfoAdShowModal, setEnvInfoAdShowModal, selectedEnv
         </Dialog>
     );
 };
-export default EnvInfoAdModal;
+export default ProductosModal;

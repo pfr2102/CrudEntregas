@@ -1,7 +1,7 @@
 //FIC: Material UI
 import { MaterialReactTable } from 'material-react-table';
 import { useState, useEffect } from 'react';
-import { Box, Stack, Tooltip, Button, IconButton, Dialog } from "@mui/material";
+import { Box, Stack, Tooltip, Button, IconButton, Dialog, darken } from "@mui/material";
 import AddCircleIcon from "@mui/icons-material/AddCircle";
 import EditIcon from "@mui/icons-material/Edit";
 import InfoIcon from "@mui/icons-material/Info";
@@ -57,6 +57,7 @@ const ShippingsColumns = [
     const [isEditMode, setIsEditMode] = useState(false); //Para determinar si la modal está en modo de edicion/agregar (true=editar || false=agregar)
     const [editData, setEditData] = useState(false);     //Para saber si hay que rellenar los textfield con datos en caso de estar en modo de edición
     const [isDeleteMode, setIsDeleteMode] = useState(false); //Para saber si está en modo de eliminación o no
+    const [selectedRowIndex, setSelectedRowIndex] = useState(null); //Para saber cual es la fila y pasarla para el color de la tabla
 
     const dispatch = useDispatch();
 
@@ -85,6 +86,7 @@ const ShippingsColumns = [
         //Poner el modo de editar y pasar la data                           por lo que se puede usar formik??? para colocar la data en los textfield
         setIsEditMode(true);
         setEditData(row);
+        setSelectedRowIndex(index);
         console.log("INDICE SELECCIONADO",index);
         //Dispatch para enviar data a redux y que este la pase a InfoAdTable
         dispatch(SET_SELECTED_SHIPPING_DATA(row)); 
@@ -124,6 +126,17 @@ const ShippingsColumns = [
             data={shippingsData}
             initialState={{ density: "compact", showGlobalFilter: true }}
             state={{isLoading: loadingTable}}
+            muiTableBodyRowProps={({ row }) => ({
+              onClick: () => {
+                setSelectedRowIndex(row.original);
+                setSelectedRowIndex(row.id);
+              },
+              sx: {
+                cursor: loadingTable ? "not-allowed" : "pointer",
+                backgroundColor:
+                selectedRowIndex === row.id ? darken("#EFF999", 0.01) : "inherit",
+              },
+            })}
             renderTopToolbarCustomActions={({ table }) => (
                 <>
                   {/* ------- BARRA DE ACCIONES ------ */}
