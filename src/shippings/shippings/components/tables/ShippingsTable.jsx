@@ -75,37 +75,6 @@ const ShippingsColumns = [
       fetchData();
     }, []);
 
-    //useEffect con querySelector que se le coloca a cada fila junto con un EventListener para manejar 
-    //los clics en la tabla y nos devuelva los datos del documento correspondiente
-    //usar el useEffect para ejecutar cada que se haga un cambio en shippingsData
-    useEffect(() => {
-      const handleRowClick = (index) => {
-        const row = shippingsData[index];
-        //Aqui es donde se decide que hacer con la data que regresa el clic en la fila
-        console.log("<<ID DEL DOCUMENTO SELECCIONADO>>:", row.IdEntregaOK); //row.IdEntregaOK devuelve solo el id, debe funcionar con todo lo demas
-        //Poner el modo de editar y pasar la data                           por lo que se puede usar formik??? para colocar la data en los textfield
-        setIsEditMode(true);
-        setEditData(row);
-        setSelectedRowIndex(index);
-        console.log("INDICE SELECCIONADO",index);
-        //Dispatch para enviar data a redux y que este la pase a InfoAdTable
-        dispatch(SET_SELECTED_SHIPPING_DATA(row)); 
-        //SE PASA COMPLETO PORQUE SE NECESITA EL ID DEL DOCUMENTO PRINCIPAL PARA INSERTAR EL SUBDOCUMENTO
-        //SI QUISIERAS PASAR SOLO UN CAMPO O SUBDOCUMENTO SERIA CON row.info_ad o con row.IdEntregaOK
-      };
-      const rows = document.querySelectorAll('.MuiTableRow-root'); //Se seleccionan todas las filas de la tabla con la clase .MuiTableRow-root
-      //se añade un EventListener a cada fila y cuando se hace clic se ejecuta la función handleRowClick con el dato correspondiente de shippingsData
-      rows.forEach((row, index) => { 
-        row.addEventListener('click', () => handleRowClick(index-1)); //Aqui es index-1 porque index me traía la fila siguiente a la que presionabas
-      });
-      //Cuando shippingsData cambia se "limpian" los EventListeners para evitar posibles problemas de memoria o fuga de eventos
-      return () => {
-        rows.forEach((row, index) => {
-          row.removeEventListener('click', () => handleRowClick(index-1));
-        });
-      };
-    }, [shippingsData]);
-
     //PARA LA FUNCIÓN onUpdateShippingsData en AddShippingsModal.jsx
     //Esta es la función para hacer un "refresh" a la tabla
     const handleUpdateShippingData = async () => {
@@ -128,13 +97,16 @@ const ShippingsColumns = [
             state={{isLoading: loadingTable}}
             muiTableBodyRowProps={({ row }) => ({
               onClick: () => {
-                setSelectedRowIndex(row.original);
-                setSelectedRowIndex(row.id);
+                setSelectedRowIndex(row.original); //row.original hace referencia al objeto de datos original asociado con la fila
+                console.log("DATOS AAA", row.original);
+                setEditData(row.original); //Poner la data en el useState 
+                dispatch(SET_SELECTED_SHIPPING_DATA(row.original)); //Pasar los datos a redux y despues al otroa archivo
+                setSelectedRowIndex(row.id); //row.id se asigna automaticamente por react-table a cada fila
               },
               sx: {
                 cursor: loadingTable ? "not-allowed" : "pointer",
                 backgroundColor:
-                selectedRowIndex === row.id ? darken("#EFF999", 0.01) : "inherit",
+                selectedRowIndex === row.id ? darken("#EFF999", 0.01) : "inherit", //Para pintar de color la fila que coincida con row.id
               },
             })}
             renderTopToolbarCustomActions={({ table }) => (
@@ -157,6 +129,7 @@ const ShippingsColumns = [
                         <IconButton onClick={() => {
                           setAddShippingShowModal(true);
                           setIsDeleteMode(false);
+                          setIsEditMode(true);
                           }}> {/*Para que se abra la modal de actualizar SOLO despues de dar clic al boton */}
                           <EditIcon />
                         </IconButton>

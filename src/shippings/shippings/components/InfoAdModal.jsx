@@ -4,7 +4,7 @@ import { Dialog, DialogContent, DialogTitle, Typography, TextField, DialogAction
 import { LoadingButton } from "@mui/lab";
 import CloseIcon from "@mui/icons-material/Close";
 import SaveIcon from "@mui/icons-material/Save";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 //FIC: Formik - Yup
 import { useFormik } from "formik";
@@ -17,10 +17,37 @@ import { InfoAdValues } from "../helpers/InfoAdValues";
 import { AddOneInfoAd } from "../services/remote/post/AddOneInfoAd";
 import { UpdateOneInfoAd } from "../services/remote/put/UpdateOneInfoAd";
 import { DeleteOneInfoAd } from "../services/remote/del/DeleteOneInfoAd";
+import { GetAllLabels } from "../services/remote/get/GetAllLabels";
 
 const InfoAdModal = ({ InfoAdShowModal, setInfoAdShowModal, selectedShippingData, reloadTable, isEditMode, isDeleteMode, row }) => {
     const [mensajeErrorAlert, setMensajeErrorAlert] = useState("");
     const [mensajeExitoAlert, setMensajeExitoAlert] = useState("");
+    const [ValorValuesLabel, setValorValuesLabel] = useState([]);
+    const [EtiquetaValuesLabel, setEtiquetaValuesLabel] = useState([]);
+
+    //FIC: en cuanto se abre la modal llama el metodo
+    //que ejecuta la API que trae todas las etiquetas de la BD.
+    useEffect(() => {
+        getDataSelectEtiquetaType();
+    }, []);
+
+    //FIC: Ejecutamos la API que obtiene todas las etiquetas
+    //y filtramos solo la etiqueta de TipoMetodoEnvio de cat_etiquetas
+    //para que los ID y Nombres se agreguen como items en el
+    //control <Select> del campo IdEtiquetaOK en la Modal.
+    async function getDataSelectEtiquetaType() {
+        try {
+            const Labels = await GetAllLabels();
+            const ValoresTypes = Labels.find(
+                (label) => label.IdEtiquetaOK === "IdTipoMetodoEnvio"
+            );
+            setValorValuesLabel(ValoresTypes.valores);
+            setEtiquetaValuesLabel(Labels);
+        } catch (e) {
+            console.error("Error al obtener Etiquetas para Tipos Metodo envio de info_ad:", e);
+        }
+    }
+
     //Para ver la data que trae el documento completo desde el dispatch de ShippingsTable
     console.log("DATA YA PASADA EN INFOADMODAL AAAAAAA",selectedShippingData); 
     console.log("MODO DE BORRAR ES:",isDeleteMode);
@@ -143,7 +170,7 @@ const InfoAdModal = ({ InfoAdShowModal, setInfoAdShowModal, selectedShippingData
                     dividers
                 >
                     {/* FIC: Campos de captura o selección */}
-                    <TextField
+                    {/* <TextField
                         id="IdEtiquetaOK"
                         label="IdEtiquetaOK*"
                         value={formik.values.IdEtiquetaOK}
@@ -151,7 +178,35 @@ const InfoAdModal = ({ InfoAdShowModal, setInfoAdShowModal, selectedShippingData
                         error={ formik.touched.IdEtiquetaOK && Boolean(formik.errors.IdEtiquetaOK) }
                         helperText={ formik.touched.IdEtiquetaOK && formik.errors.IdEtiquetaOK }
                         disabled={isDeleteMode} //Si está eliminando que el campo no se pueda editar
-                    />
+                    /> */}
+                    <Select
+                        value={formik.values.IdEtiquetaOK}
+                        label="Selecciona una opción"
+                        onChange={(event) => {
+                            const selectedId = event.target.value;
+                            const selectedOption = EtiquetaValuesLabel.find((tipoEtiqu) => tipoEtiqu.IdEtiquetaOK === selectedId);
+
+                            formik.setValues({
+                                ...formik.values,
+                                IdEtiquetaOK: selectedId,
+                                Etiqueta: selectedOption?.Etiqueta || "", //Los de la derecha son los nombres en 
+                                Secuencia: selectedOption?.Secuencia || "", //la bd/modelo del otro equipo, NO los nuestros
+                                IdTipoSeccionOK: selectedOption?.Seccion || "",
+                            });
+                        }}
+                        name="IdEtiquetaOK"
+                        onBlur={formik.handleBlur}
+                        disabled={!!mensajeExitoAlert}
+                    >
+                        {EtiquetaValuesLabel.map((tipoEtiqu) => (
+                            <MenuItem
+                                value={`${tipoEtiqu.IdEtiquetaOK}`}
+                                key={tipoEtiqu.IdEtiquetaOK}
+                            >
+                                {tipoEtiqu.IdEtiquetaOK}
+                            </MenuItem>
+                        ))}
+                    </Select>
                     <TextField
                         id="IdEtiqueta"
                         label="IdEtiqueta*"
@@ -170,15 +225,25 @@ const InfoAdModal = ({ InfoAdShowModal, setInfoAdShowModal, selectedShippingData
                         helperText={ formik.touched.Etiqueta && formik.errors.Etiqueta }
                         disabled={isDeleteMode} //Si está eliminando que el campo no se pueda editar
                     />
-                    <TextField
-                        id="Valor"
-                        label="Valor*"
+                    <Select
                         value={formik.values.Valor}
-                        {...commonTextFieldProps}
-                        error={ formik.touched.Valor && Boolean(formik.errors.Valor) }
-                        helperText={ formik.touched.Valor && formik.errors.Valor }
-                        disabled={isDeleteMode} //Si está eliminando que el campo no se pueda editar
-                    />
+                        label="Selecciona una opción"
+                        onChange={formik.handleChange}
+                        name="Valor" //FIC: Asegúrate que coincida con el nombre del campo
+                        onBlur={formik.handleBlur}
+                        disabled={!!mensajeExitoAlert}
+                    >
+                        {ValorValuesLabel.map((tipoEtiq) => {
+                            return (
+                            <MenuItem
+                                value={`${tipoEtiq.Valor}`}
+                                key={tipoEtiq.Valor}
+                            >
+                                {tipoEtiq.Valor}
+                            </MenuItem>
+                            );
+                        })}
+                    </Select>
                     <TextField
                         id="IdTipoSeccionOK"
                         label="IdTipoSeccionOK*"

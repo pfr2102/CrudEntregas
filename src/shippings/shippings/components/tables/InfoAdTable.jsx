@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from "react";
 //FIC: Material UI
 import { MaterialReactTable } from 'material-react-table';
-import { Box, Stack, Tooltip, Button, IconButton, Dialog } from "@mui/material";
+import { Box, Stack, Tooltip, Button, IconButton, Dialog, darken } from "@mui/material";
 import AddCircleIcon from "@mui/icons-material/AddCircle";
 import EditIcon from "@mui/icons-material/Edit";
 import InfoIcon from "@mui/icons-material/Info";
@@ -66,6 +66,7 @@ const InfoAdColumns = [
     const [isEditMode, setIsEditMode] = useState(false); //Para determinar si la modal está en modo de edicion/agregar (true=editar || false=agregar)
     const [editData, setEditData] = useState(false);//Para saber si hay que rellenar los textfield con datos en caso de estar en modo de edición
     const [isDeleteMode, setIsDeleteMode] = useState(false); //Para saber si está en modo de eliminación o no
+    const [selectedRowIndex, setSelectedRowIndex] = useState(null); //Para saber cual es la fila y pasarla para el color de la tabla
 
     //Con redux sacar la data que se envió del otro archivo (ShippingsTable)
     const selectedShippingData = useSelector((state) => state.shippingsReducer.selectedShippingData);
@@ -97,32 +98,6 @@ const InfoAdColumns = [
       setTriggerReloadTable(!triggerReloadTable);
     };
 
-    //useEffect para al hacer clic en la tabla nos traiga los datos del docuemnto de esa fila
-    useEffect(() => {
-      const handleRowClick = (index) => {
-        const row = InfoAdData[index];
-        //Aqui es donde se decide que hacer con la data que regresa el clic en la fila
-        console.log("<<ID DEL DOCUMENTO SELECCIONADO>>:", row.IdEtiquetaOK); //row.id_domicilioOK devuelve solo el id, debe funcionar con todo lo demas
-        //Poner el modo de editar y pasar la data               por lo que se puede usar formik??? para colocar la data en los textfield
-        setIsEditMode(true);
-        setEditData(row);
-        console.log("INDICE SELECCIONADO",index);
-      };
-      const rows = document.querySelectorAll('.MuiTableRow-root'); //Se seleccionan todas las filas de la tabla con la clase .MuiTableRow-root
-  
-      //se añade un EventListener a cada fila y cuando se hace clic se ejecuta la función handleRowClick con el dato correspondiente de shippingsData
-      rows.forEach((row, index) => { 
-        row.addEventListener('click', () => handleRowClick(index-1)); //Aqui es index-1 porque index me traía la fila siguiente a la que presionabas
-      });
-
-      //Cuando shippingsData cambia se "limpian" los EventListeners para evitar posibles problemas de memoria o fuga de eventos
-      return () => {
-        rows.forEach((row, index) => {
-          row.removeEventListener('click', () => handleRowClick(index-1));
-        });
-      };
-    }, [InfoAdData]);
-
     return (
         <Box>
           <Box>
@@ -131,6 +106,19 @@ const InfoAdColumns = [
               data={InfoAdData}
               state={{isLoading: loadingTable}}
               initialState={{ density: "compact", showGlobalFilter: true }}
+              muiTableBodyRowProps={({ row }) => ({
+                onClick: () => {
+                  setSelectedRowIndex(row.original); //row.original hace referencia al objeto de datos original asociado con la fila
+                  console.log("DATOS AAA", row.original);
+                  setEditData(row.original); //Poner la data en el useState 
+                  setSelectedRowIndex(row.id); //row.id se asigna automaticamente por react-table a cada fila
+                },
+                sx: {
+                  cursor: loadingTable ? "not-allowed" : "pointer",
+                  backgroundColor:
+                  selectedRowIndex === row.id ? darken("#EFF999", 0.01) : "inherit", //Para pintar de color la fila que coincida con row.id
+                },
+              })}
               renderTopToolbarCustomActions={({ table }) => (
                   <>
                     {/* ------- ACTIONS TOOLBAR INIT ------ */}

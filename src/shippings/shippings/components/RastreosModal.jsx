@@ -4,7 +4,7 @@ import { Dialog, DialogContent, DialogTitle, Typography, TextField, DialogAction
 import { LoadingButton } from "@mui/lab";
 import CloseIcon from "@mui/icons-material/Close";
 import SaveIcon from "@mui/icons-material/Save";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 //FIC: Formik - Yup
 import { useFormik } from "formik";
@@ -15,11 +15,33 @@ import { RastreosValues } from "../helpers/RastreosValues";
 
 //SERVICES
 import { AddOneRastreo } from "../services/remote/post/AddOneRastreo";
+import { GetAllPersonas } from "../services/remote/get/GetAllPersonas";
 
 const RastreosModal = ({ RastreosShowModal, setRastreosShowModal, selectedEnvioData, selectedShippingData, 
                           reloadTable, isEditMode, isDeleteMode, row }) => {
     const [mensajeErrorAlert, setMensajeErrorAlert] = useState("");
     const [mensajeExitoAlert, setMensajeExitoAlert] = useState("");
+    const [PersonasValuesLabel, setPersonasValuesLabel] = useState([]);
+
+    //FIC: en cuanto se abre la modal llama el metodo
+    //que ejecuta la API que trae todas las etiquetas de la BD.
+    useEffect(() => {
+        getDataSelectPersonasType();
+    }, []);
+
+    //FIC: Ejecutamos la API que obtiene todas las etiquetas
+    //y filtramos solo la etiqueta de TipoMetodoEnvio de cat_etiquetas
+    //para que los ID y Nombres se agreguen como items en el
+    //control <Select> del campo IdEtiquetaOK en la Modal.
+    async function getDataSelectPersonasType() {
+        try {
+            const Personas = await GetAllPersonas();
+            console.log("PERSONAAAAAAAAAAAAAAS", Personas);
+            setPersonasValuesLabel(Personas);
+        } catch (e) {
+            console.error("Error al obtener ordenes_detalles para ordenes de productos:", e);
+        }
+    }
 
     console.log("DATA YA PASADA EN EnvINFOADMODAL AAAAAAA",selectedEnvioData); 
     console.log("MODO DE BORRAR ES:",isDeleteMode);
@@ -124,7 +146,7 @@ const RastreosModal = ({ RastreosShowModal, setRastreosShowModal, selectedEnvioD
                         helperText={ formik.touched.NumeroGuia && formik.errors.NumeroGuia }
                         disabled={isDeleteMode} //Si está eliminando que el campo no se pueda editar
                     />
-                    <TextField
+                    {/* <TextField
                         id="IdRepartidorOK"
                         label="IdRepartidorOK*"
                         value={formik.values.IdRepartidorOK}
@@ -132,7 +154,34 @@ const RastreosModal = ({ RastreosShowModal, setRastreosShowModal, selectedEnvioD
                         error={ formik.touched.IdRepartidorOK && Boolean(formik.errors.IdRepartidorOK) }
                         helperText={ formik.touched.IdRepartidorOK && formik.errors.IdRepartidorOK }
                         disabled={isDeleteMode} //Si está eliminando que el campo no se pueda editar
-                    />
+                    /> */}
+                    <Select
+                        value={formik.values.IdRepartidorOK}
+                        label="Selecciona una opción"
+                        onChange={(event) => {
+                            const selectedId = event.target.value;
+                            const selectedOption = PersonasValuesLabel.find((tipoPers) => tipoPers.IdPersonaBK === selectedId);
+
+                            formik.setValues({
+                                ...formik.values,
+                                IdRepartidorOK: selectedId,
+                                NombreRepartidor: selectedOption?.Nombre + " " + selectedOption?.ApPaterno + " " + selectedOption?.ApMaterno || "",
+                                Alias: selectedOption?.Alias || "",
+                            });
+                        }}
+                        name="IdRepartidorOK"
+                        onBlur={formik.handleBlur}
+                        disabled={!!mensajeExitoAlert}
+                    >
+                        {PersonasValuesLabel.map((tipoPers) => (
+                            <MenuItem
+                                value={`${tipoPers.IdPersonaBK}`}
+                                key={tipoPers.IdPersonaBK}
+                            >
+                                {tipoPers.IdPersonaBK}
+                            </MenuItem>
+                        ))}
+                    </Select>
                     <TextField
                         id="NombreRepartidor"
                         label="NombreRepartidor*"
@@ -140,7 +189,7 @@ const RastreosModal = ({ RastreosShowModal, setRastreosShowModal, selectedEnvioD
                         {...commonTextFieldProps}
                         error={ formik.touched.NombreRepartidor && Boolean(formik.errors.NombreRepartidor) }
                         helperText={ formik.touched.NombreRepartidor && formik.errors.NombreRepartidor }
-                        disabled={isDeleteMode} //Si está eliminando que el campo no se pueda editar
+                        disabled={true} //Si está eliminando que el campo no se pueda editar
                     />
                     <TextField
                         id="Alias"
@@ -149,7 +198,7 @@ const RastreosModal = ({ RastreosShowModal, setRastreosShowModal, selectedEnvioD
                         {...commonTextFieldProps}
                         error={ formik.touched.Alias && Boolean(formik.errors.Alias) }
                         helperText={ formik.touched.Alias && formik.errors.Alias }
-                        disabled={isDeleteMode} //Si está eliminando que el campo no se pueda editar
+                        disabled={true} //Si está eliminando que el campo no se pueda editar
                     />
                 </DialogContent>
                 {/* FIC: Aqui van las acciones del usuario como son las alertas o botones */}

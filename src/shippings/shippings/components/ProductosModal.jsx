@@ -4,7 +4,7 @@ import { Dialog, DialogContent, DialogTitle, Typography, TextField, DialogAction
 import { LoadingButton } from "@mui/lab";
 import CloseIcon from "@mui/icons-material/Close";
 import SaveIcon from "@mui/icons-material/Save";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 //FIC: Formik - Yup
 import { useFormik } from "formik";
@@ -17,11 +17,38 @@ import { ProductosValues } from "../helpers/ProductosValues";
 import { AddOneProducto } from "../services/remote/post/AddOneProducto";
 import { UpdateOneProducto } from "../services/remote/put/UpdateOneProducto";
 import { DeleteOneProducto } from "../services/remote/del/DeleteOneProducto";
+import { GetAllOrders } from "../services/remote/get/GetAllOrders";
 
 const ProductosModal = ({ ProductosShowModal, setProductosShowModal, selectedEnvioData, selectedShippingData, 
                           reloadTable, isEditMode, isDeleteMode, row }) => {
     const [mensajeErrorAlert, setMensajeErrorAlert] = useState("");
     const [mensajeExitoAlert, setMensajeExitoAlert] = useState("");
+    const IdOrdenOKK = selectedShippingData.IdOrdenOK;
+    console.log("ORDENAAAAAAA", IdOrdenOKK);
+    const [OrdenValuesLabel, setOrdenValuesLabel] = useState([]);
+
+    //FIC: en cuanto se abre la modal llama el metodo
+    //que ejecuta la API que trae todas las etiquetas de la BD.
+    useEffect(() => {
+        getDataSelectOrdenType();
+    }, []);
+
+    //FIC: Ejecutamos la API que obtiene todas las etiquetas
+    //y filtramos solo la etiqueta de TipoMetodoEnvio de cat_etiquetas
+    //para que los ID y Nombres se agreguen como items en el
+    //control <Select> del campo IdEtiquetaOK en la Modal.
+    async function getDataSelectOrdenType() {
+        try {
+            const Orders = await GetAllOrders();
+            const OrdenTypes = Orders.find(
+                (label) => label.IdOrdenOK === IdOrdenOKK
+            );
+            console.log("ORDENTYPES AAAAAAA", OrdenTypes.ordenes_detalle);
+            setOrdenValuesLabel(OrdenTypes.ordenes_detalle);
+        } catch (e) {
+            console.error("Error al obtener ordenes_detalles para ordenes de productos:", e);
+        }
+    }
 
     console.log("DATA YA PASADA EN EnvINFOADMODAL AAAAAAA",selectedEnvioData); 
     console.log("MODO DE BORRAR ES:",isDeleteMode);
@@ -145,7 +172,7 @@ const ProductosModal = ({ ProductosShowModal, setProductosShowModal, selectedEnv
                     dividers
                 >
                     {/* FIC: Campos de captura o selección */}
-                    <TextField
+                    {/* <TextField
                         id="IdProdServOK"
                         label="IdProdServOK*"
                         value={formik.values.IdProdServOK}
@@ -153,7 +180,36 @@ const ProductosModal = ({ ProductosShowModal, setProductosShowModal, selectedEnv
                         error={ formik.touched.IdProdServOK && Boolean(formik.errors.IdProdServOK) }
                         helperText={ formik.touched.IdProdServOK && formik.errors.IdProdServOK }
                         disabled={isDeleteMode} //Si está eliminando que el campo no se pueda editar
-                    />
+                    /> */}
+                    <Select
+                        value={formik.values.IdProdServOK}
+                        label="Selecciona una opción"
+                        onChange={(event) => {
+                            const selectedId = event.target.value;
+                            const selectedOption = OrdenValuesLabel.find((tipoEtiq) => tipoEtiq.IdProdServOK === selectedId);
+
+                            formik.setValues({
+                                ...formik.values,
+                                IdProdServOK: selectedId,
+                                IdPresentaOK: selectedOption?.IdPresentaOK || "", //Los de la derecha son los nombres en 
+                                DesPresenta: selectedOption?.DesPresentaPS || "", //la bd/modelo del otro equipo, NO los nuestros
+                                CantidadPed: selectedOption?.Cantidad || "",
+                            });
+                        }}
+                        name="IdProdServOK"
+                        onBlur={formik.handleBlur}
+                        disabled={!!mensajeExitoAlert}
+                    >
+                        {OrdenValuesLabel.map((tipoEtiq) => (
+                            <MenuItem
+                                value={`${tipoEtiq.IdProdServOK}`}
+                                key={tipoEtiq.IdProdServOK}
+                            >
+                                {tipoEtiq.IdProdServOK}
+                            </MenuItem>
+                        ))}
+                    </Select>
+
                     <TextField
                         id="IdPresentaOK"
                         label="IdPresentaOK*"
@@ -161,7 +217,7 @@ const ProductosModal = ({ ProductosShowModal, setProductosShowModal, selectedEnv
                         {...commonTextFieldProps}
                         error={ formik.touched.IdPresentaOK && Boolean(formik.errors.IdPresentaOK) }
                         helperText={ formik.touched.IdPresentaOK && formik.errors.IdPresentaOK }
-                        disabled={isDeleteMode} //Si está eliminando que el campo no se pueda editar
+                        disabled={true} //Si está eliminando que el campo no se pueda editar
                     />
                     <TextField
                         id="DesProdServ"
@@ -179,7 +235,7 @@ const ProductosModal = ({ ProductosShowModal, setProductosShowModal, selectedEnv
                         {...commonTextFieldProps}
                         error={ formik.touched.DesPresenta && Boolean(formik.errors.DesPresenta) }
                         helperText={ formik.touched.DesPresenta && formik.errors.DesPresenta }
-                        disabled={isDeleteMode} //Si está eliminando que el campo no se pueda editar
+                        disabled={true} //Si está eliminando que el campo no se pueda editar
                     />
                     <TextField
                         id="CantidadPed"
@@ -188,7 +244,7 @@ const ProductosModal = ({ ProductosShowModal, setProductosShowModal, selectedEnv
                         {...commonTextFieldProps}
                         error={ formik.touched.CantidadPed && Boolean(formik.errors.CantidadPed) }
                         helperText={ formik.touched.CantidadPed && formik.errors.CantidadPed }
-                        disabled={isDeleteMode} //Si está eliminando que el campo no se pueda editar
+                        disabled={true} //Si está eliminando que el campo no se pueda editar
                     />
                     <TextField
                         id="CantidadEnt"

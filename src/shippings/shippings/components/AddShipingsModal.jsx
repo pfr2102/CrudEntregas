@@ -193,7 +193,7 @@ const AddShippingModal = ({ AddShippingShowModal, setAddShippingShowModal, onUpd
                         {...commonTextFieldProps}
                         error={ formik.touched.IdEntregaBK && Boolean(formik.errors.IdEntregaBK) }
                         helperText={ formik.touched.IdEntregaBK && formik.errors.IdEntregaBK }
-                        disabled={isDeleteMode} //Si está eliminando que el campo no se pueda editar
+                        disabled={!!mensajeExitoAlert || isDeleteMode} //Si está eliminando que el campo no se pueda editar
                     />
                     {/* <TextField
                         id="IdOrdenOK"

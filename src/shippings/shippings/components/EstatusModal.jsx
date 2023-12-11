@@ -21,6 +21,19 @@ const EstatusModal = ({ EstatusShowModal, setEstatusShowModal, selectedEnvioData
     const [mensajeErrorAlert, setMensajeErrorAlert] = useState("");
     const [mensajeExitoAlert, setMensajeExitoAlert] = useState("");
 
+    const options = [
+        'IdEstatusEnvio-IdEnProceso',
+        'IdEstatusEnvio-IdListoEnviar',
+        'IdEstatusEnvio-IdEsperaRepartidor',
+        'IdEstatusEnvio-IdEntregaRepartidor',
+        'IdEstatusEnvio-IdEnTransito',
+        'IdEstatusEnvio-IdLlegaDestino',
+        'IdEstatusEnvio-IdRecibeCliente',
+        'IdEstatusEnvio-IdRechazaCliente',
+        'IdEstatusEnvio-IdDevolucionRecibida',
+        'IdEstatusEnvio-IdConcluido',
+    ];
+
     console.log("DATA YA PASADA EN EnvINFOADMODAL AAAAAAA",selectedEnvioData); 
     console.log("MODO DE BORRAR ES:",isDeleteMode);
     console.log("MODO DE ACTUALIZAR ES:",isEditMode);
@@ -45,8 +58,10 @@ const EstatusModal = ({ EstatusShowModal, setEstatusShowModal, selectedEnvioData
             setMensajeExitoAlert(null);
 
             try {
+                // Convertir el valor del checkbox a "S" o "N"
+                const actualValue = values.Actual ? "S" : "N";
                 //Usar InfoAdValues para obtener los valores definidos del subdocumento en el archivo del mismo nombre
-                 const Estatus = EstatusValues(values);
+                const Estatus = EstatusValues({ ...values, Actual: actualValue });
                     
                 //Poner el Id del documento existente para pasar al servicio POST
                 const existingShippingId = selectedShippingData.IdEntregaOK;
@@ -97,21 +112,47 @@ const EstatusModal = ({ EstatusShowModal, setEstatusShowModal, selectedEnvioData
                     dividers
                 >
                     {/* FIC: Campos de captura o selección */}
-                    <TextField
+                    {/* <TextField
                         id="IdTipoEstatusOK"
                         label="IdTipoEstatusOK*"
                         value={formik.values.IdTipoEstatusOK}
                         {...commonTextFieldProps}
                         error={ formik.touched.IdTipoEstatusOK && Boolean(formik.errors.IdTipoEstatusOK) }
                         helperText={ formik.touched.IdTipoEstatusOK && formik.errors.IdTipoEstatusOK }
-                    />
-                    <TextField
+                    /> */}
+                    <Select
+                        id="IdTipoEstatusOK"  // Set a unique id for the Select component
+                        label="IdTipoEstatusOK*"  // Add a label for better accessibility
+                        value={formik.values.IdTipoEstatusOK}
+                        onChange={(event) => formik.setFieldValue("IdTipoEstatusOK", event.target.value)}
+                        error={formik.touched.IdTipoEstatusOK && Boolean(formik.errors.IdTipoEstatusOK)}
+                        helperText={formik.touched.IdTipoEstatusOK && formik.errors.IdTipoEstatusOK}
+                    >
+                        {options.map((option, index) => (
+                            <MenuItem key={index} value={option}>
+                                {option}
+                            </MenuItem>
+                        ))}
+                    </Select>
+                    {/* <TextField
                         id="Actual"
                         label="Actual*"
                         value={formik.values.Actual}
                         {...commonTextFieldProps}
                         error={ formik.touched.Actual && Boolean(formik.errors.Actual) }
                         helperText={ formik.touched.Actual && formik.errors.Actual }
+                    /> */}
+                    <FormControlLabel
+                        control={
+                            <Checkbox
+                                checked={formik.values.Actual}
+                                onChange={(e) => formik.setFieldValue('Actual', e.target.checked)}
+                                name="Actual"
+                                color="primary"
+                                disabled={!!mensajeExitoAlert}
+                            />
+                        }
+                        label="Actual"
                     />
                     <TextField
                         id="Observacion"
