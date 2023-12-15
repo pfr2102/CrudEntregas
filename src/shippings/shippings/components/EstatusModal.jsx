@@ -15,6 +15,7 @@ import { EstatusValues } from "../helpers/EstatusValues";
 
 //SERVICES
 import { AddOneEstatus } from "../services/remote/post/AddOneEstatus";
+import { UpdateAllEstatus } from "../services/remote/put/UpdateAllEstatus";
 
 const EstatusModal = ({ EstatusShowModal, setEstatusShowModal, selectedEnvioData, selectedShippingData, 
                           reloadTable, isEditMode, isDeleteMode, row }) => {
@@ -60,22 +61,24 @@ const EstatusModal = ({ EstatusShowModal, setEstatusShowModal, selectedEnvioData
             try {
                 // Convertir el valor del checkbox a "S" o "N"
                 const actualValue = values.Actual ? "S" : "N";
-                //Usar InfoAdValues para obtener los valores definidos del subdocumento en el archivo del mismo nombre
+                // Usar InfoAdValues para obtener los valores definidos del subdocumento en el archivo del mismo nombre
                 const Estatus = EstatusValues({ ...values, Actual: actualValue });
-                    
-                //Poner el Id del documento existente para pasar al servicio POST
+
+                // Poner el Id del documento existente para pasar al servicio POST
                 const existingShippingId = selectedShippingData.IdEntregaOK;
                 const instituto = selectedShippingData.IdInstitutoOK;
                 const negocio = selectedShippingData.IdNegocioOK;
                 const domicilio = selectedEnvioData.IdDomicilioOK;
-    
-                //Pasar los parametros al servicio de POST del archivo AddOneInfoAd.jsx
-                //En el mismo orden se pasa: Id del documento existente || Los valores que el usuario pone en el form y que se sacan
-                //de formik || El objeto con los valores predefinidos
-                // console.log("INFO DE DETAIL_ROW", infoAdSubdocument);
+
+                // Realizar la actualización a todos los campos antes de agregar un nuevo estatus
+                await UpdateAllEstatus(existingShippingId, instituto, negocio, domicilio, { Actual: "N" });
+
+                // Pasar los parámetros al servicio de POST del archivo AddOneInfoAd.jsx
+                // En el mismo orden se pasa: Id del documento existente || Los valores que el usuario pone en el form y que se sacan
+                // de formik || El objeto con los valores predefinidos
                 await AddOneEstatus(existingShippingId, instituto, negocio, domicilio, Estatus);
                 reloadTable();
-                setMensajeExitoAlert("Estatus creado y guardado Correctamente");
+                setMensajeExitoAlert("Estatus creado y guardado correctamente");
             } catch (e) {
                 setMensajeExitoAlert(null);
                 console.error("<<ERROR>> en onSubmit:", e);
@@ -121,8 +124,8 @@ const EstatusModal = ({ EstatusShowModal, setEstatusShowModal, selectedEnvioData
                         helperText={ formik.touched.IdTipoEstatusOK && formik.errors.IdTipoEstatusOK }
                     /> */}
                     <Select
-                        id="IdTipoEstatusOK"  // Set a unique id for the Select component
-                        label="IdTipoEstatusOK*"  // Add a label for better accessibility
+                        id="IdTipoEstatusOK" 
+                        label="IdTipoEstatusOK*" 
                         value={formik.values.IdTipoEstatusOK}
                         onChange={(event) => formik.setFieldValue("IdTipoEstatusOK", event.target.value)}
                         error={formik.touched.IdTipoEstatusOK && Boolean(formik.errors.IdTipoEstatusOK)}

@@ -1,6 +1,7 @@
 import React from "react";
 import { Dialog, DialogContent, DialogTitle, Typography, TextField, DialogActions, Box, Alert,
-         FormControlLabel, Checkbox, InputLabel, Select, MenuItem, FormHelperText } from "@mui/material";
+         FormControlLabel, Checkbox, InputLabel, Select, MenuItem, FormHelperText, Stack, 
+         Autocomplete, Tooltip, Switch } from "@mui/material";
 import { LoadingButton } from "@mui/lab";
 import CloseIcon from "@mui/icons-material/Close";
 import SaveIcon from "@mui/icons-material/Save";
@@ -25,6 +26,13 @@ const EnvInfoAdModal = ({ EnvInfoAdShowModal, setEnvInfoAdShowModal, selectedEnv
     const [mensajeExitoAlert, setMensajeExitoAlert] = useState("");
     const [ValorValuesLabel, setValorValuesLabel] = useState([]);
     const [EtiquetaValuesLabel, setEtiquetaValuesLabel] = useState([]);
+    const [Etiqueta2ValuesLabel, setEtiqueta2ValuesLabel] = useState([]);
+    const [SeccionesValuesLabel, setSeccionesValuesLabel] = useState([]);
+    const [isNuevaEtiqueta, setINuevaEtiqueta] = React.useState(false);
+    const [IdValorOK, setIdValorOK] = useState("");
+
+    //Para subdoc (8 caracteres)
+    // const [IdGen, setIdGen] = useState(genID().replace(/-/g, "").substring(0, 8));
 
     //FIC: en cuanto se abre la modal llama el metodo
     //que ejecuta la API que trae todas las etiquetas de la BD.
@@ -39,11 +47,22 @@ const EnvInfoAdModal = ({ EnvInfoAdShowModal, setEnvInfoAdShowModal, selectedEnv
     async function getDataSelectEtiquetaType() {
         try {
             const Labels = await GetAllLabels();
-            const ValoresTypes = Labels.find(
+            const LabelsTypes = Labels.find(
                 (label) => label.IdEtiquetaOK === "IdTipoMetodoEnvio"
             );
-            setValorValuesLabel(ValoresTypes.valores);
-            setEtiquetaValuesLabel(Labels);
+            setEtiquetaValuesLabel(LabelsTypes.valores);            
+            const LabelsSection = Labels.find(
+                (label) => label.IdEtiquetaOK === "IdSeccionesInfoAdEntregas" 
+            );
+            setSeccionesValuesLabel(LabelsSection.valores);
+            setEtiqueta2ValuesLabel(LabelsSection);
+            console.log("DATOS DE ETIQUETAS", Labels);
+            // Aquí puedes obtener el IdValorOK de la primera opción y establecerlo en el estado
+            //Este if es para colocar el valor de IdValorOK correspondienete en IdEtiqueta y por alguna razon si lo quitas
+            //el autocomplete siempre pone la pimer opcion da igual cual escojas
+            if (LabelsTypes.valores && LabelsTypes.valores.length > 0) {
+                setIdValorOK(LabelsTypes.valores.IdValorOK);
+            }
         } catch (e) {
             console.error("Error al obtener Etiquetas para Tipos Metodo envio de info_ad:", e);
         }
@@ -64,9 +83,11 @@ const EnvInfoAdModal = ({ EnvInfoAdShowModal, setEnvInfoAdShowModal, selectedEnv
             Secuencia: row ? row.Secuencia : null,
         },
         validationSchema: Yup.object({
-            IdEtiquetaOK: Yup.string().required("Campo requerido"),
+            IdEtiquetaOK: !isNuevaEtiqueta
+                ? Yup.string().required("Campo requerido")
+                : Yup.string(),
             IdEtiqueta: Yup.string().required("Campo requerido"),
-            Etiqueta: Yup.string().required("Campo requerido"),
+            // Etiqueta: Yup.string().required("Campo requerido"),
             Valor: Yup.string().required("Campo requerido"),
             IdTipoSeccionOK: Yup.string().required("Campo requerido"),
             Secuencia: Yup.string().required("Campo requerido"),
@@ -119,18 +140,33 @@ const EnvInfoAdModal = ({ EnvInfoAdShowModal, setEnvInfoAdShowModal, selectedEnv
                 }else{
                     //Usar InfoAdValues para obtener los valores definidos del subdocumento en el archivo del mismo nombre
                     const infoAdSubdocument = EnvInfoAdValues(values);
-                    
+                    const concat = Etiqueta2ValuesLabel.IdEtiquetaOK;
+                    const idtiposeccionok = `${concat}-${values.IdTipoSeccionOK}`;
+                    const etiq = values.IdEtiqueta;
+                    console.log("DATO DE IDETIQUETAOK", idtiposeccionok);
+
                     //Poner el Id del documento existente para pasar al servicio POST
                     const existingShippingId = selectedShippingData.IdEntregaOK;
                     const instituto = selectedShippingData.IdInstitutoOK;
                     const negocio = selectedShippingData.IdNegocioOK;
                     const domicilio = selectedEnvioData.IdDomicilioOK;
-    
+                    // console.log("DATOS AL GUARDAR AAAAAAA", infoAdSubdocument);
                     //Pasar los parametros al servicio de POST del archivo AddOneInfoAd.jsx
                     //En el mismo orden se pasa: Id del documento existente || Los valores que el usuario pone en el form y que se sacan
                     //de formik || El objeto con los valores predefinidos (IdEtiquetaOK, IdEtiqueta, Etiqueta,...etc...)
-                    // console.log("INFO DE DETAIL_ROW", infoAdSubdocument);
-                    await AddOneEnvInfoAd(existingShippingId, instituto, negocio, domicilio, infoAdSubdocument);
+                    console.log("INFO DE DETAIL_ROW", infoAdSubdocument);
+                    if(isNuevaEtiqueta){
+                    await AddOneEnvInfoAd(existingShippingId, instituto, negocio, domicilio, {...infoAdSubdocument, 
+                                                                                IdTipoSeccionOK: idtiposeccionok, 
+                                                                                Etiqueta: etiq,
+                                                                                IdEtiquetaOK: etiq
+                                                                               });
+                    }else{
+                    await AddOneEnvInfoAd(existingShippingId, instituto, negocio, domicilio, {...infoAdSubdocument, 
+                                                                                IdTipoSeccionOK: idtiposeccionok, 
+                                                                                Etiqueta: etiq
+                                                                               });
+                    }
                     reloadTable();
                     setMensajeExitoAlert("Info Adicional creada y guardada Correctamente");
                 }
@@ -181,44 +217,65 @@ const EnvInfoAdModal = ({ EnvInfoAdShowModal, setEnvInfoAdShowModal, selectedEnv
                         helperText={ formik.touched.IdEtiquetaOK && formik.errors.IdEtiquetaOK }
                         disabled={isDeleteMode} //Si está eliminando que el campo no se pueda editar
                     /> */}
-                    <Select
-                        value={formik.values.IdEtiquetaOK}
-                        label="Selecciona una opción"
-                        onChange={(event) => {
-                            const selectedId = event.target.value;
-                            const selectedOption = EtiquetaValuesLabel.find((tipoEtiqu) => tipoEtiqu.IdEtiquetaOK === selectedId);
-
-                            formik.setValues({
-                                ...formik.values,
-                                IdEtiquetaOK: selectedId,
-                                Etiqueta: selectedOption?.Etiqueta || "", //Los de la derecha son los nombres en 
-                                Secuencia: selectedOption?.Secuencia || "", //la bd/modelo del otro equipo, NO los nuestros
-                                IdTipoSeccionOK: selectedOption?.Seccion || "",
-                            });
+                    <Stack direction="row" alignItems="center">
+                    <Autocomplete
+                        id="IdEtiquetaOK"
+                        options={EtiquetaValuesLabel}
+                        disabled={isNuevaEtiqueta || isDeleteMode || isEditMode}
+                        getOptionLabel={(option) => option.Valor} //Poner para que se muestre el campo valor
+                        value={{ Valor: formik.values.IdEtiqueta }}
+                        onChange={(event, newValue) => {
+                            console.log("DATOS DE NEWVALUE", newValue);
+                            formik.setFieldValue("IdEtiquetaOK", newValue ? newValue.IdValorOK : "");
+                            formik.setFieldValue("IdEtiqueta", newValue ? newValue.IdValorOK : "");
+                            formik.setFieldValue("Etiqueta", newValue ? newValue.Valor : "");
+                            //Establecer el valor de IdValorOK en el estado
+                            // setIdValorOK(newValue ? newValue.IdValorOK : "");
                         }}
-                        name="IdEtiquetaOK"
-                        onBlur={formik.handleBlur}
-                        disabled={!!mensajeExitoAlert}
-                    >
-                        {EtiquetaValuesLabel.map((tipoEtiqu) => (
-                            <MenuItem
-                                value={`${tipoEtiqu.IdEtiquetaOK}`}
-                                key={tipoEtiqu.IdEtiquetaOK}
-                            >
-                                {tipoEtiqu.IdEtiquetaOK}
-                            </MenuItem>
-                        ))}
-                    </Select>
+                        renderInput={(params) => (
+                            <TextField
+                                {...params}
+                                label="Selecciona una etiqueta"
+                                {...commonTextFieldProps}
+                                error={formik.touched.IdEtiquetaOK && Boolean(formik.errors.IdEtiquetaOK)}
+                                helperText={formik.touched.IdEtiquetaOK && formik.errors.IdEtiquetaOK}
+                                disabled={isDeleteMode}
+                                sx={{ width: 400 }}
+                            />
+                        )}
+                    />
+                    <Tooltip title="Agrega manualmente una etiqueta nueva">
+                    <FormControlLabel
+                        sx={{ ml: 2 }}
+                        disabled={isDeleteMode || isEditMode}
+                        control={<Switch defaultChecked />}
+                        label={
+                        isNuevaEtiqueta
+                            ? "Agregar Nueva Etiqueta"
+                            : "Seleccionar una Etiqueta"
+                        }
+                        onChange={() => {
+                            setINuevaEtiqueta(!isNuevaEtiqueta);
+                            // formik.values.IdEtiquetaOK = "";
+                        }}
+                    />
+                    </Tooltip>
+                    </Stack>
                     <TextField
                         id="IdEtiqueta"
                         label="IdEtiqueta*"
+                        onChange={(e) => {
+                            formik.handleChange(e);
+                            formik.setFieldValue("IdEtiquetaOK", e.target.value); // Actualiza IdEtiquetaOK directamente
+                            formik.setFieldValue("Etiqueta", e.target.value); // Actualiza Etiqueta
+                        }}
                         value={formik.values.IdEtiqueta}
                         {...commonTextFieldProps}
                         error={ formik.touched.IdEtiqueta && Boolean(formik.errors.IdEtiqueta) }
                         helperText={ formik.touched.IdEtiqueta && formik.errors.IdEtiqueta }
-                        disabled={isDeleteMode} //Si está eliminando que el campo no se pueda editar
+                        disabled={!isNuevaEtiqueta} //Si está eliminando que el campo no se pueda editar
                     />
-                    <TextField
+                    {/* <TextField
                         id="Etiqueta"
                         label="Etiqueta*"
                         value={formik.values.Etiqueta}
@@ -226,8 +283,8 @@ const EnvInfoAdModal = ({ EnvInfoAdShowModal, setEnvInfoAdShowModal, selectedEnv
                         error={ formik.touched.Etiqueta && Boolean(formik.errors.Etiqueta) }
                         helperText={ formik.touched.Etiqueta && formik.errors.Etiqueta }
                         disabled={isDeleteMode} //Si está eliminando que el campo no se pueda editar
-                    />
-                    {/* <TextField
+                    /> */}
+                    <TextField
                         id="Valor"
                         label="Valor*"
                         value={formik.values.Valor}
@@ -235,27 +292,8 @@ const EnvInfoAdModal = ({ EnvInfoAdShowModal, setEnvInfoAdShowModal, selectedEnv
                         error={ formik.touched.Valor && Boolean(formik.errors.Valor) }
                         helperText={ formik.touched.Valor && formik.errors.Valor }
                         disabled={isDeleteMode} //Si está eliminando que el campo no se pueda editar
-                    /> */}
-                    <Select
-                        value={formik.values.Valor}
-                        label="Selecciona una opción"
-                        onChange={formik.handleChange}
-                        name="Valor" //FIC: Asegúrate que coincida con el nombre del campo
-                        onBlur={formik.handleBlur}
-                        disabled={!!mensajeExitoAlert}
-                    >
-                        {ValorValuesLabel.map((tipoEtiq) => {
-                            return (
-                            <MenuItem
-                                value={`${tipoEtiq.Valor}`}
-                                key={tipoEtiq.Valor}
-                            >
-                                {tipoEtiq.Valor}
-                            </MenuItem>
-                            );
-                        })}
-                    </Select>
-                    <TextField
+                    />
+                    {/* <TextField
                         id="IdTipoSeccionOK"
                         label="IdTipoSeccionOK*"
                         value={formik.values.IdTipoSeccionOK}
@@ -263,10 +301,32 @@ const EnvInfoAdModal = ({ EnvInfoAdShowModal, setEnvInfoAdShowModal, selectedEnv
                         error={ formik.touched.IdTipoSeccionOK && Boolean(formik.errors.IdTipoSeccionOK) }
                         helperText={ formik.touched.IdTipoSeccionOK && formik.errors.IdTipoSeccionOK }
                         disabled={isDeleteMode} //Si está eliminando que el campo no se pueda editar
+                    /> */}
+                    <Autocomplete
+                        id="IdTipoSeccionOK"
+                        options={SeccionesValuesLabel}
+                        disabled={isDeleteMode}
+                        getOptionLabel={(option) => option.Valor}
+                        // value={SeccionesValuesLabel.find(option => option.Valor === formik.values.IdTipoSeccionOK) || null}
+                        value={{ Valor: formik.values.IdTipoSeccionOK }} //Para que ponga el dato cuando se abra la modal en edicion
+                        onChange={(event, newValue) => {
+                            formik.setFieldValue("IdTipoSeccionOK", newValue ? newValue.Valor : "");
+                        }}
+                        renderInput={(params) => (
+                            <TextField
+                                {...params}
+                                label="Selecciona una seccion"
+                                {...commonTextFieldProps}
+                                error={formik.touched.IdTipoSeccionOK && Boolean(formik.errors.IdTipoSeccionOK)}
+                                helperText={formik.touched.IdTipoSeccionOK && formik.errors.IdTipoSeccionOK}
+                                disabled={isDeleteMode}
+                            />
+                        )}
                     />
                     <TextField
                         id="Secuencia"
                         label="Secuencia*"
+                        type="number"
                         value={formik.values.Secuencia}
                         {...commonTextFieldProps}
                         error={ formik.touched.Secuencia && Boolean(formik.errors.Secuencia) }

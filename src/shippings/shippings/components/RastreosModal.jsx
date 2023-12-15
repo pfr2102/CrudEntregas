@@ -1,6 +1,6 @@
 import React from "react";
 import { Dialog, DialogContent, DialogTitle, Typography, TextField, DialogActions, Box, Alert,
-         FormControlLabel, Checkbox, InputLabel, Select, MenuItem, FormHelperText } from "@mui/material";
+         FormControlLabel, Checkbox, InputLabel, Select, MenuItem, FormHelperText, Autocomplete } from "@mui/material";
 import { LoadingButton } from "@mui/lab";
 import CloseIcon from "@mui/icons-material/Close";
 import SaveIcon from "@mui/icons-material/Save";
@@ -15,6 +15,7 @@ import { RastreosValues } from "../helpers/RastreosValues";
 
 //SERVICES
 import { AddOneRastreo } from "../services/remote/post/AddOneRastreo";
+import { DeleteOneRastreo } from "../services/remote/del/DeleteOneRastreo";
 import { GetAllPersonas } from "../services/remote/get/GetAllPersonas";
 
 const RastreosModal = ({ RastreosShowModal, setRastreosShowModal, selectedEnvioData, selectedShippingData, 
@@ -59,7 +60,6 @@ const RastreosModal = ({ RastreosShowModal, setRastreosShowModal, selectedEnvioD
             NumeroGuia: Yup.string().required("Campo requerido"),
             IdRepartidorOK: Yup.string().required("Campo requerido"),
             NombreRepartidor: Yup.string().required("Campo requerido"),
-            Alias: Yup.string().required("Campo requerido"),
         }),
         onSubmit: async (values) => {
             console.log("FIC: entro al onSubmit despues de hacer click en boton Guardar");
@@ -69,20 +69,20 @@ const RastreosModal = ({ RastreosShowModal, setRastreosShowModal, selectedEnvioD
             setMensajeExitoAlert(null);
 
             try {
-                // if(isDeleteMode){
-                //     console.log("SE ESTÁ BORRANDO RAAAAAAAAAH");
-                //     // Obtener el ID del subdocumento que se está editando
-                //     const subdocumentId = row.NumeroGuia;
-                //     //Poner el Id del documento existente para pasar al servicio DELETE
-                //     const existingShippingId = selectedShippingData.IdEntregaOK;
-                //     const idInstituto = selectedShippingData.IdInstitutoOK;
-                //     const idNegocio = selectedShippingData.IdNegocioOK;
-                //     const idDomicilio = selectedEnvioData.IdDomicilioOK;
+                if(isDeleteMode){
+                    console.log("SE ESTÁ BORRANDO RAAAAAAAAAH");
+                    // Obtener el ID del subdocumento que se está editando
+                    const subdocumentId = row.NumeroGuia;
+                    //Poner el Id del documento existente para pasar al servicio DELETE
+                    const existingShippingId = selectedShippingData.IdEntregaOK;
+                    const idInstituto = selectedShippingData.IdInstitutoOK;
+                    const idNegocio = selectedShippingData.IdNegocioOK;
+                    const idDomicilio = selectedEnvioData.IdDomicilioOK;
 
-                //     await DeleteOneProducto(idInstituto, idNegocio, existingShippingId, idDomicilio, subdocumentId);
-                //     reloadTable();
-                //     setMensajeExitoAlert("Rastreo eliminado correctamente");
-                // }else{
+                    await DeleteOneRastreo(existingShippingId, idInstituto, idNegocio, idDomicilio, subdocumentId);
+                    reloadTable();
+                    setMensajeExitoAlert("Rastreo eliminado correctamente");
+                }else{
                     //Usar InfoAdValues para obtener los valores definidos del subdocumento en el archivo del mismo nombre
                     const Rastreos = RastreosValues(values);
                     
@@ -99,7 +99,7 @@ const RastreosModal = ({ RastreosShowModal, setRastreosShowModal, selectedEnvioD
                     await AddOneRastreo(existingShippingId, instituto, negocio, domicilio, Rastreos);
                     reloadTable();
                     setMensajeExitoAlert("Rastreo creado y guardado Correctamente");
-                // }
+                }
             } catch (e) {
                 setMensajeExitoAlert(null);
                 console.error("<<ERROR>> en onSubmit:", e);
@@ -155,33 +155,29 @@ const RastreosModal = ({ RastreosShowModal, setRastreosShowModal, selectedEnvioD
                         helperText={ formik.touched.IdRepartidorOK && formik.errors.IdRepartidorOK }
                         disabled={isDeleteMode} //Si está eliminando que el campo no se pueda editar
                     /> */}
-                    <Select
-                        value={formik.values.IdRepartidorOK}
-                        label="Selecciona una opción"
-                        onChange={(event) => {
-                            const selectedId = event.target.value;
-                            const selectedOption = PersonasValuesLabel.find((tipoPers) => tipoPers.IdPersonaBK === selectedId);
-
+                    <Autocomplete
+                        value={{ IdPersonaBK: formik.values.IdRepartidorOK}}
+                        onChange={(event, newValue) => {
                             formik.setValues({
                                 ...formik.values,
-                                IdRepartidorOK: selectedId,
-                                NombreRepartidor: selectedOption?.Nombre + " " + selectedOption?.ApPaterno + " " + selectedOption?.ApMaterno || "",
-                                Alias: selectedOption?.Alias || "",
+                                IdRepartidorOK: newValue ? newValue.IdPersonaBK : "",
+                                NombreRepartidor: newValue ? `${newValue.Nombre} ${newValue.ApPaterno} ${newValue.ApMaterno}` : "",
+                                Alias: newValue ? newValue.Alias : "",
                             });
                         }}
-                        name="IdRepartidorOK"
-                        onBlur={formik.handleBlur}
-                        disabled={!!mensajeExitoAlert}
-                    >
-                        {PersonasValuesLabel.map((tipoPers) => (
-                            <MenuItem
-                                value={`${tipoPers.IdPersonaBK}`}
-                                key={tipoPers.IdPersonaBK}
-                            >
-                                {tipoPers.IdPersonaBK}
-                            </MenuItem>
-                        ))}
-                    </Select>
+                        options={PersonasValuesLabel}
+                        getOptionLabel={(option) => option.IdPersonaBK}
+                        renderInput={(params) => (
+                            <TextField
+                                {...params}
+                                id="IdRepartidorOK"
+                                label="Selecciona un repartidor"
+                                {...commonTextFieldProps}
+                                error={formik.touched.IdRepartidorOK && Boolean(formik.errors.IdRepartidorOK)}
+                                helperText={formik.touched.IdRepartidorOK && formik.errors.IdRepartidorOK}
+                            />
+                        )}
+                    />
                     <TextField
                         id="NombreRepartidor"
                         label="NombreRepartidor*"

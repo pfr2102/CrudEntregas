@@ -6,6 +6,7 @@ import AddCircleIcon from "@mui/icons-material/AddCircle";
 import EditIcon from "@mui/icons-material/Edit";
 import InfoIcon from "@mui/icons-material/Info";
 import DeleteIcon from "@mui/icons-material/Delete";
+import RefreshIcon from "@mui/icons-material/Refresh";
 
 //FIC: DB
 // import ShippingsData from '../../../../../db/ecommerce/json/shippings/ShippingsData';
@@ -66,7 +67,6 @@ const ShippingsColumns = [
         try {
           const AllShippingsData = await getAllShippings();
           setShippingsData(AllShippingsData);
-          //setInstitutesData(InstitutesStaticData);
           setLoadingTable(false);
         } catch (error) {
           console.error("Error al obtener los envios en useEffect de ShippingsTable:", error);
@@ -148,6 +148,15 @@ const ShippingsColumns = [
                           <InfoIcon />
                         </IconButton>
                       </Tooltip>
+                      <Tooltip title="Recargar tabla">
+                          <IconButton
+                            onClick={() => {
+                              handleUpdateShippingData(); //Para recargar la tabla
+                            }}
+                          >
+                            <RefreshIcon />
+                          </IconButton>
+                        </Tooltip>
                     </Box>
                   </Stack>
                   {/* ------- BARRA DE ACCIONES FIN ------ */}

@@ -7,6 +7,7 @@ import AddCircleIcon from "@mui/icons-material/AddCircle";
 import EditIcon from "@mui/icons-material/Edit";
 import InfoIcon from "@mui/icons-material/Info";
 import DeleteIcon from "@mui/icons-material/Delete";
+import RefreshIcon from "@mui/icons-material/Refresh";
 //FIC: DB
 // import { GetAllSubdoc } from "../../services/remote/get/GetAllInfoAd";
 import { GetEnviosId } from "../../services/remote/get/GetEnviosId";
@@ -68,7 +69,7 @@ const EstatusColumns = [
       async function fetchData() {
         try {
           const AllEstatusData = await GetEnviosId(instituto, negocio, entrega, domicilio);
-          console.log("DATOS DEL GET SUBDOC RASTREOS OUYEAAAAAAA", AllEstatusData.rastreos);
+          // console.log("DATOS DEL GET SUBDOC RASTREOS OUYEAAAAAAA", AllEstatusData.rastreos);
           setEstatusData(AllEstatusData.estatus);
           setLoadingTable(false);
         } catch (error) {
@@ -120,29 +121,18 @@ const EstatusColumns = [
                             <AddCircleIcon />
                           </IconButton>
                         </Tooltip>
-                        <Tooltip title="Editar">
-                          <IconButton
-                          onClick={() => {
-                            setEstatusShowModal(true);
-                            setIsEditMode(true);
-                            setIsDeleteMode(false);
-                          }}>
-                            <EditIcon />
-                          </IconButton>
-                        </Tooltip>
-                        <Tooltip title="Eliminar">
-                          <IconButton
-                          onClick={() => {
-                            setEstatusShowModal(true);
-                            setIsEditMode(false);
-                            setIsDeleteMode(true);
-                          }}>
-                            <DeleteIcon />
-                          </IconButton>
-                        </Tooltip>
                         <Tooltip title="Detalles ">
                           <IconButton>
                             <InfoIcon />
+                          </IconButton>
+                        </Tooltip>
+                        <Tooltip title="Recargar tabla">
+                          <IconButton
+                            onClick={() => {
+                              reloadTableData(); //Para recargar la tabla
+                            }}
+                          >
+                            <RefreshIcon />
                           </IconButton>
                         </Tooltip>
                       </Box>

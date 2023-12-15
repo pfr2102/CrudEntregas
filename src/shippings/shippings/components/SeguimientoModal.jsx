@@ -5,6 +5,7 @@ import { LoadingButton } from "@mui/lab";
 import CloseIcon from "@mui/icons-material/Close";
 import SaveIcon from "@mui/icons-material/Save";
 import { useState } from "react";
+import InputAdornment from "@mui/material/InputAdornment";
 
 //FIC: Formik - Yup
 import { useFormik } from "formik";
@@ -75,7 +76,7 @@ const SeguimientoModal = ({ SeguimientoShowModal, setSeguimientoShowModal, selec
                     await UpdateOneSeguimiento(Seguimiento, idInstituto, idNegocio, existingShippingId, idDomicilio, subdocumentId);
                     
                     reloadTable();
-                    setMensajeExitoAlert("Producto actualizado correctamente");
+                    setMensajeExitoAlert("Seguimiento actualizado correctamente");
                 }else if(isDeleteMode){
                     console.log("SE ESTÁ BORRANDO RAAAAAAAAAH");
                     // Obtener el ID del subdocumento que se está editando
@@ -88,7 +89,7 @@ const SeguimientoModal = ({ SeguimientoShowModal, setSeguimientoShowModal, selec
 
                     await DeleteOneSeguimiento(idInstituto, idNegocio, existingShippingId, idDomicilio, subdocumentId);
                     reloadTable();
-                    setMensajeExitoAlert("Producto eliminado correctamente");
+                    setMensajeExitoAlert("Seguimiento eliminado correctamente");
                 }else{
                     //Usar InfoAdValues para obtener los valores definidos del subdocumento en el archivo del mismo nombre
                     const Seguimiento = SeguimientoValues(values);
@@ -105,14 +106,14 @@ const SeguimientoModal = ({ SeguimientoShowModal, setSeguimientoShowModal, selec
                     // console.log("INFO DE DETAIL_ROW", infoAdSubdocument);
                     await AddOneSeguimiento(existingShippingId, instituto, negocio, domicilio, Seguimiento);
                     reloadTable();
-                    setMensajeExitoAlert("Producto creado y guardado Correctamente");
+                    setMensajeExitoAlert("Seguimiento creado y guardado Correctamente");
                 }
             } catch (e) {
                 setMensajeExitoAlert(null);
                 console.error("<<ERROR>> en onSubmit:", e);
-                setMensajeErrorAlert(isEditMode ? "No se pudo actualizar los productos" : 
-                                     isDeleteMode ? "No se pudo eliminar los productos" : 
-                                     "No se pudo guardar los productos");
+                setMensajeErrorAlert(isEditMode ? "No se pudo actualizar el seguimiento" : 
+                                     isDeleteMode ? "No se pudo eliminar el seguimiento" : 
+                                     "No se pudo guardar el seguimiento");
             }
         },
     });
@@ -136,7 +137,7 @@ const SeguimientoModal = ({ SeguimientoShowModal, setSeguimientoShowModal, selec
                 {/* FIC: Aqui va el Titulo de la Modal */}
                 <DialogTitle>
                     <Typography component="h6">
-                        <strong>{isEditMode ? "ACTUALIZAR PRODUCTO" : isDeleteMode ? "ELIMINAR PRODUCTO" : "AGREGAR PRODUCTO"}</strong>
+                        <strong>{isEditMode ? "ACTUALIZAR SEGUIMIENTO" : isDeleteMode ? "ELIMINAR SEGUIMIENTO" : "AGREGAR SEGUIMIENTO"}</strong>
                     </Typography>
                 </DialogTitle>
                 {/* FIC: Aqui va un tipo de control por cada Propiedad de Institutos */}
@@ -150,9 +151,25 @@ const SeguimientoModal = ({ SeguimientoShowModal, setSeguimientoShowModal, selec
                         label="Ubicacion*"
                         value={formik.values.Ubicacion}
                         {...commonTextFieldProps}
-                        error={ formik.touched.Ubicacion && Boolean(formik.errors.Ubicacion) }
-                        helperText={ formik.touched.Ubicacion && formik.errors.Ubicacion }
-                        disabled={isDeleteMode} //Si está eliminando que el campo no se pueda editar
+                        error={formik.touched.Ubicacion && Boolean(formik.errors.Ubicacion)}
+                        helperText={formik.touched.Ubicacion && formik.errors.Ubicacion}
+                        disabled={isDeleteMode}
+                        InputProps={{
+                            startAdornment: (
+                                <InputAdornment position="start">
+                                    <Typography variant="subtitle2" color="textSecondary">
+                                        Lat:
+                                    </Typography>
+                                </InputAdornment>
+                            ),
+                            endAdornment: (
+                                <InputAdornment position="end">
+                                    <Typography variant="subtitle2" color="textSecondary">
+                                        Long:
+                                    </Typography>
+                                </InputAdornment>
+                            ),
+                        }}
                     />
                     <TextField
                         id="DesUbicacion"
@@ -177,18 +194,24 @@ const SeguimientoModal = ({ SeguimientoShowModal, setSeguimientoShowModal, selec
                         label="Observacion*"
                         value={formik.values.Observacion}
                         {...commonTextFieldProps}
-                        error={ formik.touched.Observacion && Boolean(formik.errors.Observacion) }
-                        helperText={ formik.touched.Observacion && formik.errors.Observacion }
-                        disabled={isDeleteMode} //Si está eliminando que el campo no se pueda editar
+                        error={formik.touched.Observacion && Boolean(formik.errors.Observacion)}
+                        helperText={formik.touched.Observacion && formik.errors.Observacion}
+                        disabled={isDeleteMode}
+                        multiline  // Esta propiedad habilita el modo multilinea
+                        rows={4}    // Puedes ajustar el número de filas según tus necesidades
                     />
                     <TextField
                         id="FechaReg"
                         label="FechaReg*"
+                        type="datetime-local"  // Esta propiedad establece el tipo de entrada como fecha y hora
                         value={formik.values.FechaReg}
                         {...commonTextFieldProps}
-                        error={ formik.touched.FechaReg && Boolean(formik.errors.FechaReg) }
-                        helperText={ formik.touched.FechaReg && formik.errors.FechaReg }
-                        disabled={isDeleteMode} //Si está eliminando que el campo no se pueda editar
+                        error={formik.touched.FechaReg && Boolean(formik.errors.FechaReg)}
+                        helperText={formik.touched.FechaReg && formik.errors.FechaReg}
+                        disabled={isDeleteMode}
+                        InputLabelProps={{
+                            shrink: true,  // Esta propiedad evita que la etiqueta se superponga cuando hay un valor seleccionado
+                        }}
                     />
                     <TextField
                         id="UsuarioReg"

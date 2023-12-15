@@ -4,6 +4,7 @@ import { EnviosModel } from "../models/EnviosModel"
 //enviados desde el evento onSubmit de Formik
 export const EnviosValues = (values)=>{
   let Envios =  EnviosModel()
+  //Al campo IdDomicilioOK del modelo Envios mandame el valor de formik (values) que coincida con IdDomicilioOK
   Envios.IdDomicilioOK=values.IdDomicilioOK,
   Envios.IdPaqueteriaOK=values.IdPaqueteriaOK,
   Envios.IdTipoMetodoEnvio=values.IdTipoMetodoEnvio,

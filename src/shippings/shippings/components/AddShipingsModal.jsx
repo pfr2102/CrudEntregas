@@ -1,6 +1,6 @@
 import React from "react";
 import { Dialog, DialogContent, DialogTitle, Typography, TextField, DialogActions, Box, Alert,
-         FormControlLabel, Checkbox, InputLabel, Select, MenuItem, FormHelperText } from "@mui/material";
+         FormControlLabel, Checkbox, InputLabel, Select, MenuItem, FormHelperText, Autocomplete } from "@mui/material";
 import { LoadingButton } from "@mui/lab";
 import CloseIcon from "@mui/icons-material/Close";
 import SaveIcon from "@mui/icons-material/Save";
@@ -18,6 +18,7 @@ import { AddOneShipping } from "../services/remote/post/AddOneShipping";
 import { UpdateOneShipping } from "../services/remote/put/UpdateOneShipping";
 import { DeleteOneShipping } from "../services/remote/del/DeleteOneShipping"; 
 import { GetAllOrders } from "../services/remote/get/GetAllOrders";
+import { GetAllInstitutes } from "../services/remote/get/GetAllInstitutes";
 
 //FEAK: UUID (Objeto ID Universal)
 import { v4 as genID } from "uuid";
@@ -26,9 +27,22 @@ const AddShippingModal = ({ AddShippingShowModal, setAddShippingShowModal, onUpd
     const [mensajeErrorAlert, setMensajeErrorAlert] = useState("");
     const [mensajeExitoAlert, setMensajeExitoAlert] = useState("");
     const [ShippingsValuesLabel, setShippingsValuesLabel] = useState([]);
+    const [institutes, setInstitutes] = useState([]);  // Estado para almacenar los institutos
+    const [negociosOptions, setNegociosOptions] = useState([]); //Para almacenar los negocios en base al instituto seleccionado
+    
+    // Función para obtener todos los institutos
+    async function getAllInstitutes() {
+        try {
+            const institutesData = await GetAllInstitutes();
+            setInstitutes(institutesData);  // Almacena los institutos en el estado
+        } catch (e) {
+            console.error("Error al obtener institutos:", e);
+        }
+    }
 
     useEffect(() => {
         getDataSelectShippingsOrder();
+        getAllInstitutes();
     }, []);
 
     async function getDataSelectShippingsOrder() {
@@ -45,13 +59,14 @@ const AddShippingModal = ({ AddShippingShowModal, setAddShippingShowModal, onUpd
 
     console.log("MODO DE BORRAR ES:",isDeleteMode);
     console.log("MODO DE ACTUALIZAR ES:",isEditMode);
+    console.log("DATA DE ROW AAAAAAAA", row);
     
     //FIC: Definition Formik y Yup.
     const formik = useFormik({
         initialValues: {
-            IdInstitutoOK: row ? row.IdInstitutoOK : `9001`,
-            IdNegocioOK: row ? row.IdNegocioOK : `1101`,
-            IdEntregaOK: row ? row.IdEntregaOK : `9001-1101-${IdGen}`, 
+            IdInstitutoOK: isEditMode || isDeleteMode ? row.IdInstitutoOK : "", //Si se está editando o eliminando se pone la data de row.IdInstitutoOK sino se pone vacio ""
+            IdNegocioOK: isEditMode || isDeleteMode ? row.IdNegocioOK : "",
+            IdEntregaOK: row ? row.IdEntregaOK : "", 
             IdEntregaBK: row ? row.IdEntregaBK : "", // Operador ternario para determinar si usa los datos de "row" si están disponibles
             IdOrdenOK: row ? row.IdOrdenOK : "",
         },
@@ -130,6 +145,23 @@ const AddShippingModal = ({ AddShippingShowModal, setAddShippingShowModal, onUpd
         },
     });
 
+    // Función para actualizar IdEntregaOK al cambiar IdInstitutoOK o IdNegocioOK
+    const updateIdEntregaOK = () => {       
+            formik.setFieldValue( 
+                "IdEntregaOK",
+                `${formik.values.IdInstitutoOK}-${formik.values.IdNegocioOK}-${IdGen}`
+            );
+    };
+
+    //useEffect para actualizar IdEntregaOK cuando cambian IdInstitutoOK o negociosOptions
+    //Se usa porque sucedia que si presionabas la opcion del autocomplete de IdNegociosOK no lo concatenaba en IdEntregasOK
+    //hasta que presionaras una segunda vez.
+    useEffect(() => {
+        if (formik.values.IdInstitutoOK && formik.values.IdNegocioOK && negociosOptions.length > 0) {
+            updateIdEntregaOK(); // Actualizar IdEntregaOK al cambiar IdInstitutoOK o IdNegocioOK
+        }
+    }, [formik.values.IdInstitutoOK, formik.values.IdNegocioOK, negociosOptions]);
+
     //FIC: props structure for TextField Control.
     const commonTextFieldProps = {
         onChange: formik.handleChange,
@@ -159,7 +191,7 @@ const AddShippingModal = ({ AddShippingShowModal, setAddShippingShowModal, onUpd
                     dividers
                 >
                     {/* FIC: Campos de captura o selección */}
-                    <TextField
+                    {/* <TextField
                         id="IdInstitutoOK"
                         label="IdInstitutoOK*"
                         value={formik.values.IdInstitutoOK}
@@ -167,8 +199,33 @@ const AddShippingModal = ({ AddShippingShowModal, setAddShippingShowModal, onUpd
                         error={ formik.touched.IdInstitutoOK && Boolean(formik.errors.IdInstitutoOK) }
                         helperText={ formik.touched.IdInstitutoOK && formik.errors.IdInstitutoOK }
                         disabled={true} //Linea para establecer que el campo no se pueda editar.
+                    /> */}
+                    <Autocomplete
+                        id="IdInstitutoOK"
+                        disabled={!!mensajeExitoAlert || isDeleteMode || isEditMode} //Para deshabilitar cuando se elimine y no poder cambiarlo
+                        options={institutes}    //Se pasan las opciones del useState
+                        getOptionLabel={(option) => option.IdInstitutoOK} //Función para obtener la etiqueta de cada opción
+                        value={institutes.find((inst) => inst.IdInstitutoOK === formik.values.IdInstitutoOK) || null} //Valor seleccionado, basado en el estado formik.values.IdInstitutoOK
+                        onChange={(event, newValue) => {
+                            // Función ejecutada al cambiar la selección
+                            formik.setFieldValue("IdInstitutoOK", newValue ? newValue.IdInstitutoOK : "");
+                            // Obtener las opciones de IdNegocioOK basadas en el IdInstitutoOK seleccionado
+                            setNegociosOptions(newValue ? newValue.cat_negocios.map((neg) => neg.IdNegocioOK) : []);
+                              formik.setFieldValue("IdNegocioOK", ""); // Reiniciar el valor de IdNegocioOK al cambiar IdInstitutoOK
+                              updateIdEntregaOK(); //Actualizar IdEntregaOK al cambiar IdInstitutoOK
+                        }}
+                        renderInput={(params) => (
+                            <TextField
+                                {...params}
+                                label="IdInstitutoOK*"
+                                error={formik.touched.IdInstitutoOK && Boolean(formik.errors.IdInstitutoOK)}
+                                helperText={formik.touched.IdInstitutoOK && formik.errors.IdInstitutoOK}
+                                fullWidth
+                                margin="dense"
+                            />
+                        )}
                     />
-                    <TextField
+                    {/* <TextField
                         id="IdNegocioOK"
                         label="IdNegocioOK*"
                         value={formik.values.IdNegocioOK}
@@ -176,6 +233,29 @@ const AddShippingModal = ({ AddShippingShowModal, setAddShippingShowModal, onUpd
                         error={ formik.touched.IdNegocioOK && Boolean(formik.errors.IdNegocioOK) }
                         helperText={ formik.touched.IdNegocioOK && formik.errors.IdNegocioOK }
                         disabled={true} //Linea para establecer que el campo no se pueda editar.
+                    /> */}
+                    <Autocomplete
+                        id="IdNegocioOK"
+                        disabled={!!mensajeExitoAlert || isDeleteMode || isEditMode} //Para deshabilitar cuando se elimine y no poder cambiarlo
+                        options={formik.values.IdInstitutoOK ? institutes.find(
+                            inst => inst.IdInstitutoOK === formik.values.IdInstitutoOK)?.cat_negocios.map(neg => neg.IdNegocioOK) || [] 
+                            : []} //Opciones del Autocomplete, proporcionadas desde el estado negociosOptions
+                        getOptionLabel={(option) => option} //Función para obtener la etiqueta de cada opción
+                        value={formik.values.IdNegocioOK || null} //Valor seleccionado, basado en el estado formik.values.IdNegocioOK
+                        onChange={(event, newValue) => {
+                            formik.setFieldValue("IdNegocioOK", newValue || ""); //Actualizar el valor de IdNegocioOK al cambiar la selección
+                            updateIdEntregaOK(); // Actualizar IdEntregaOK al cambiar IdNegocioOK
+                        }}
+                        renderInput={(params) => (
+                            <TextField
+                                {...params}
+                                label="IdNegocioOK*"
+                                error={formik.touched.IdNegocioOK && Boolean(formik.errors.IdNegocioOK)}
+                                helperText={formik.touched.IdNegocioOK && formik.errors.IdNegocioOK}
+                                fullWidth
+                                margin="dense" 
+                            />
+                        )}
                     />
                     <TextField
                         id="IdEntregaOK"
@@ -204,25 +284,24 @@ const AddShippingModal = ({ AddShippingShowModal, setAddShippingShowModal, onUpd
                         helperText={ formik.touched.IdOrdenOK && formik.errors.IdOrdenOK }
                         disabled={isDeleteMode} //Si está eliminando que el campo no se pueda editar
                     /> */}
-                    <Select
-                        value={formik.values.IdOrdenOK}
-                        label="Selecciona una opción"
-                        onChange={formik.handleChange}
-                        name="IdOrdenOK" // FIC: Asegúrate que coincida con el nombre del campo
-                        onBlur={formik.handleBlur}
-                        disabled={!!mensajeExitoAlert || isDeleteMode}
-                    >
-                        {ShippingsValuesLabel.map((orden) => {
-                            return (
-                                <MenuItem
-                                    value={`${orden.IdOrdenOK}`}
-                                    key={orden.IdOrdenOK}
-                                >
-                                    {orden.IdOrdenOK}
-                                </MenuItem>
-                            );
-                        })}
-                    </Select>
+                    <Autocomplete
+                        id="IdOrdenOK"
+                        value={ShippingsValuesLabel.find((orden) => orden.IdOrdenOK === formik.values.IdOrdenOK) || null}
+                        options={ShippingsValuesLabel}
+                        getOptionLabel={(orden) => orden.IdOrdenOK}
+                        onChange={(event, newValue) => {
+                            formik.setFieldValue("IdOrdenOK", newValue ? newValue.IdOrdenOK : "");
+                        }}
+                        renderInput={(params) => (
+                            <TextField
+                                {...params}
+                                label="IdOrdenOK*"
+                                error={formik.touched.IdOrdenOK && Boolean(formik.errors.IdOrdenOK)}
+                                helperText={formik.touched.IdOrdenOK && formik.errors.IdOrdenOK}
+                                disabled={!!mensajeExitoAlert || isDeleteMode}
+                            />
+                        )}
+                    />
                 </DialogContent>
                 {/* FIC: Aqui van las acciones del usuario como son las alertas o botones */}
                 <DialogActions

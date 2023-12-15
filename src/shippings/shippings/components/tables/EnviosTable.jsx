@@ -7,6 +7,7 @@ import AddCircleIcon from "@mui/icons-material/AddCircle";
 import EditIcon from "@mui/icons-material/Edit";
 import InfoIcon from "@mui/icons-material/Info";
 import DeleteIcon from "@mui/icons-material/Delete";
+import RefreshIcon from "@mui/icons-material/Refresh";
 //FIC: DB
 import { GetAllSubdoc } from "../../services/remote/get/GetAllInfoAd";
 
@@ -153,6 +154,15 @@ const EnviosColumns = [
                         <Tooltip title="Detalles ">
                           <IconButton>
                             <InfoIcon />
+                          </IconButton>
+                        </Tooltip>
+                        <Tooltip title="Recargar tabla">
+                          <IconButton
+                            onClick={() => {
+                              reloadTableData(); //Para recargar la tabla
+                            }}
+                          >
+                            <RefreshIcon />
                           </IconButton>
                         </Tooltip>
                       </Box>
