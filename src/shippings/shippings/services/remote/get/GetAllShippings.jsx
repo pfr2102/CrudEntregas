@@ -2,7 +2,7 @@ import axios from "axios";
 export function getAllShippings() {
     return new Promise((resolve, reject) => {
       //FIC: http://localhost:8080/api/pwa/institutes 
-      axios.get(`http://localhost:3020/api/pwa/shipping`)
+      axios.get(import.meta.env.VITE_SHIPPINGS_URL)
         .then((response) => {
           const data = response.data;
         // console.log("getProducts()", data);

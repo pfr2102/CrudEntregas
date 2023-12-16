@@ -16,7 +16,7 @@ export function UpdateOneEnvInfoAd(InfoAd, idInstitutoOK, idNegocioOK, idEntrega
         // Actualizar el campo detail_row en InfoAd
         InfoAd.detail_row = currentDetailRow;
 
-        axios.put(`http://localhost:3020/api/pwa/shipping/subdocumentEInf/?IdInstitutoOK=${idInstitutoOK}&IdNegocioOK=${idNegocioOK}&IdEntregaOK=${idEntregaOK}&IdEtiquetaOK=${idEtiquetaOK}&IdDomicilioOK=${idDomicilio}`, InfoAd)
+        axios.put(`${import.meta.env.VITE_SHIPPINGS_URL}/subdocumentEInf/?IdInstitutoOK=${idInstitutoOK}&IdNegocioOK=${idNegocioOK}&IdEntregaOK=${idEntregaOK}&IdEtiquetaOK=${idEtiquetaOK}&IdDomicilioOK=${idDomicilio}`, InfoAd)
             .then((response) => {
                 console.log("<<RESPONSE>> UpdateOneShipping", InfoAd);
                 const data = response.data;

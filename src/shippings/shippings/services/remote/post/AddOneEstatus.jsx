@@ -4,7 +4,7 @@ export function AddOneEstatus(shippingId, idInstituto, idNegocio, idDomiclio, Es
     console.log("<<EJECUTA>> API <<AddOneProducto>> Requiere:", Estatus);
     return new Promise((resolve, reject) => {
         const queryParams = `?IdEntregaOK=${shippingId}&IdInstitutoOK=${idInstituto}&IdNegocioOK=${idNegocio}&IdDomicilioOK=${idDomiclio}`;
-        axios.post(`http://localhost:3020/api/pwa/shipping/subdocumentESt/${queryParams}`, Estatus)
+        axios.post(`${import.meta.env.VITE_SHIPPINGS_URL}/subdocumentESt/${queryParams}`, Estatus)
             .then((response) => {
                 console.log("<<RESPONSE>> AddOneProducto", Estatus);
                 const data = response.data;

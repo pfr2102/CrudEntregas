@@ -3,7 +3,7 @@ import axios from "axios";
 export function GetEnviosId(IdInstitutoOK, IdNegocioOK, IdEntregaOK, idDomicilio) {
     return new Promise((resolve, reject) => {
       const queryParams = `?IdInstitutoOK=${IdInstitutoOK}&IdNegocioOK=${IdNegocioOK}&IdEntregaOK=${IdEntregaOK}&IdDomicilioOK=${idDomicilio}`;
-      axios.get(`http://localhost:3020/api/pwa/shipping/one/envio${queryParams}`)
+      axios.get(`${import.meta.env.VITE_SHIPPINGS_URL}/one/envio${queryParams}`)
         .then((response) => {
           const data = response.data;
           if (!data.success) {

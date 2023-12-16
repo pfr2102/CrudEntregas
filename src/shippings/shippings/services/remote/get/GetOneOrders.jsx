@@ -3,7 +3,7 @@ export function GetOneOrder(IdInstitutoOK, IdNegocioOK, IdOrdenOK) {
     return new Promise((resolve, reject) => {
       //FIC: URL = http://localhost:8080/api/pwa/labels 
       //axios.get("http://localhost:8080/api/pwa/labels") 
-      axios.get(`http://localhost:3020/api/pwa/ordenes/one?IdInstitutoOK=${IdInstitutoOK}&IdNegocioOK=${IdNegocioOK}&IdOrdenOK=${IdOrdenOK}`)
+      axios.get(`${import.meta.env.VITE_ORDERS_URL}/one?IdInstitutoOK=${IdInstitutoOK}&IdNegocioOK=${IdNegocioOK}&IdOrdenOK=${IdOrdenOK}`)
         .then((response) => {
           const data = response.data;
           if (!data.success) {

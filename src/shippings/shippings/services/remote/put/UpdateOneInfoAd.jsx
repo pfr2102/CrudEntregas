@@ -16,7 +16,7 @@ export function UpdateOneInfoAd(InfoAd, idInstitutoOK, idNegocioOK, idEntregaOK,
         // Actualizar el campo detail_row en InfoAd
         InfoAd.detail_row = currentDetailRow;
 
-        axios.put(`http://localhost:3020/api/pwa/shipping/subdocument/?IdInstitutoOK=${idInstitutoOK}&IdNegocioOK=${idNegocioOK}&IdEntregaOK=${idEntregaOK}&IdEtiquetaOK=${idEtiquetaOK}`, InfoAd)
+        axios.put(`${import.meta.env.VITE_SHIPPINGS_URL}/subdocument/?IdInstitutoOK=${idInstitutoOK}&IdNegocioOK=${idNegocioOK}&IdEntregaOK=${idEntregaOK}&IdEtiquetaOK=${idEtiquetaOK}`, InfoAd)
             .then((response) => {
                 console.log("<<RESPONSE>> UpdateOneShipping", InfoAd);
                 const data = response.data;

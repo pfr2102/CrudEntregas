@@ -4,7 +4,7 @@ export function AddOneShipping(shipping) {
    
     console.log("<<EJECUTA>> API <<AddOneShipping>> Requiere:", shipping)
     return new Promise((resolve, reject) => {
-      axios.post(`http://localhost:3020/api/pwa/shipping`, shipping)
+      axios.post(`${import.meta.env.VITE_SHIPPINGS_URL}`, shipping)
         .then((response) => {
           console.log("<<RESPONSE>> AddOneShipping", shipping)
           const data = response.data;

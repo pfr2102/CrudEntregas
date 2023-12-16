@@ -42,7 +42,7 @@ const ProductosColumns = [
       size: 50, //small column
     },
     {
-      accessorKey: "Cantidad",
+      accessorKey: "CantidadPed",
       header: "CantidadPed",
       size: 30, //small column
     },
@@ -154,11 +154,6 @@ const ProductosColumns = [
                             setIsDeleteMode(true);
                           }}>
                             <DeleteIcon />
-                          </IconButton>
-                        </Tooltip>
-                        <Tooltip title="Detalles ">
-                          <IconButton>
-                            <InfoIcon />
                           </IconButton>
                         </Tooltip>
                         <Tooltip title="Recargar tabla">

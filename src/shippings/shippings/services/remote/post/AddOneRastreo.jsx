@@ -4,7 +4,7 @@ export function AddOneRastreo(shippingId, idInstituto, idNegocio, idDomiclio, Ra
     console.log("<<EJECUTA>> API <<AddOneProducto>> Requiere:", Rastreo);
     return new Promise((resolve, reject) => {
         const queryParams = `?IdEntregaOK=${shippingId}&IdInstitutoOK=${idInstituto}&IdNegocioOK=${idNegocio}&IdDomicilioOK=${idDomiclio}`;
-        axios.post(`http://localhost:3020/api/pwa/shipping/subdocumentERa/${queryParams}`, Rastreo)
+        axios.post(`${import.meta.env.VITE_SHIPPINGS_URL}/subdocumentERa/${queryParams}`, Rastreo)
             .then((response) => {
                 console.log("<<RESPONSE>> AddOneProducto", Rastreo);
                 const data = response.data;

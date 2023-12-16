@@ -3,7 +3,7 @@ import axios from "axios";
 export function DeleteOneShipping(IdInstitutoOK, IdNegocioOK, IdEntregaOK) {
     console.log("<<EJECUTA>> API <<deleteShipping>> Requiere ID:", IdEntregaOK);
     return new Promise((resolve, reject) => {
-        axios.delete(`http://localhost:3020/api/pwa/shipping/?IdInstitutoOK=${IdInstitutoOK}&IdNegocioOK=${IdNegocioOK}&IdEntregaOK=${IdEntregaOK}`)
+        axios.delete(`${import.meta.env.VITE_SHIPPINGS_URL}/?IdInstitutoOK=${IdInstitutoOK}&IdNegocioOK=${IdNegocioOK}&IdEntregaOK=${IdEntregaOK}`)
             .then((response) => {
                 console.log("<<RESPONSE>> deleteShipping", response.data);
                 const data = response.data;

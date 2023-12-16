@@ -71,10 +71,10 @@ const InfoAdModal = ({ InfoAdShowModal, setInfoAdShowModal, selectedShippingData
     }
 
     //Para ver la data que trae el documento completo desde el dispatch de ShippingsTable
-    console.log("DATA YA PASADA EN INFOADMODAL AAAAAAA",selectedShippingData); 
-    console.log("MODO DE BORRAR ES:",isDeleteMode);
-    console.log("MODO DE ACTUALIZAR ES:",isEditMode);
-    console.log("DATO DE IDTIPOSECCIONOK", row.IdTipoSeccionOK);
+    // console.log("DATA YA PASADA EN INFOADMODAL AAAAAAA",selectedShippingData); 
+    // console.log("MODO DE BORRAR ES:",isDeleteMode);
+    // console.log("MODO DE ACTUALIZAR ES:",isEditMode);
+    // console.log("DATO DE IDTIPOSECCIONOK", row.IdTipoSeccionOK);
 
     //FIC: Definition Formik y Yup.IdEntregaBK: row ? row.IdEntregaBK : "",
     const formik = useFormik({

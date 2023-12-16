@@ -156,11 +156,6 @@ const InfoAdColumns = [
                             <DeleteIcon />
                           </IconButton>
                         </Tooltip>
-                        <Tooltip title="Detalles ">
-                          <IconButton>
-                            <InfoIcon />
-                          </IconButton>
-                        </Tooltip>
                         <Tooltip title="Recargar tabla">
                           <IconButton
                             onClick={() => {

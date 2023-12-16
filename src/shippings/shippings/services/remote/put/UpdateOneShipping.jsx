@@ -16,7 +16,7 @@ export function UpdateOneShipping(shipping, idInstitutoOK, idNegocioOK, idEntreg
         // Actualizar el campo detail_row en shipping
         shipping.detail_row = currentDetailRow;
 
-        axios.put(`http://localhost:3020/api/pwa/shipping/?IdInstitutoOK=${idInstitutoOK}&IdNegocioOK=${idNegocioOK}&IdEntregaOK=${idEntregaOK}`, shipping)
+        axios.put(`${import.meta.env.VITE_SHIPPINGS_URL}/?IdInstitutoOK=${idInstitutoOK}&IdNegocioOK=${idNegocioOK}&IdEntregaOK=${idEntregaOK}`, shipping)
             .then((response) => {
                 console.log("<<RESPONSE>> UpdateOneShipping", shipping);
                 const data = response.data;

@@ -1,7 +1,7 @@
 import axios from "axios";
 export function GetAllPersonas() {
     return new Promise((resolve, reject) => {
-      axios.get('http://localhost:3020/api/pwa/personas')
+      axios.get(import.meta.env.VITE_CAT_PERSONS_URL)
         .then((response) => {
           const data = response.data;
           if (!data.success) {

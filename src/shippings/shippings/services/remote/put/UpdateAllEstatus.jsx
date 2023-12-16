@@ -4,7 +4,7 @@ export function UpdateAllEstatus(shippingId, idInstituto, idNegocio, idDomiclio,
     console.log("<<EJECUTA>> API <<UpdateAllEstatus>> Requiere:", updateInfo);
     return new Promise((resolve, reject) => {
         const queryParams = `?IdEntregaOK=${shippingId}&IdInstitutoOK=${idInstituto}&IdNegocioOK=${idNegocio}&IdDomicilioOK=${idDomiclio}`;
-        axios.put(`http://localhost:3020/api/pwa/shipping/updateAllEstatus/${queryParams}`, updateInfo)
+        axios.put(`${import.meta.env.VITE_SHIPPINGS_URL}/updateAllEstatus/${queryParams}`, updateInfo)
             .then((response) => {
                 console.log("<<RESPONSE>> UpdateAllEstatus", updateInfo);
                 const data = response.data;

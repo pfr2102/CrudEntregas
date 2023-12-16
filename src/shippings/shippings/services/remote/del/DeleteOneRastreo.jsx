@@ -4,7 +4,7 @@ export function DeleteOneRastreo(shippingId, idInstituto, idNegocio, idDomiclio,
     console.log("<<EJECUTA>> API <<DeleteOneRastreo>> Requiere:", numeroGuia);
     return new Promise((resolve, reject) => {
         const queryParams = `?IdEntregaOK=${shippingId}&IdInstitutoOK=${idInstituto}&IdNegocioOK=${idNegocio}&IdDomicilioOK=${idDomiclio}&NumeroGuia=${numeroGuia}`;
-        axios.delete(`http://localhost:3020/api/pwa/shipping/subdocumentERa/${queryParams}`)
+        axios.delete(`${import.meta.env.VITE_SHIPPINGS_URL}/subdocumentERa/${queryParams}`)
             .then((response) => {
                 console.log("<<RESPONSE>> DeleteOneRastreo", numeroGuia);
                 const data = response.data;

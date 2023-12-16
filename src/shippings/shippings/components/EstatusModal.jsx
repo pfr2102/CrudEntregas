@@ -162,8 +162,11 @@ const EstatusModal = ({ EstatusShowModal, setEstatusShowModal, selectedEnvioData
                         label="Observacion*"
                         value={formik.values.Observacion}
                         {...commonTextFieldProps}
-                        error={ formik.touched.Observacion && Boolean(formik.errors.Observacion) }
-                        helperText={ formik.touched.Observacion && formik.errors.Observacion }
+                        error={formik.touched.Observacion && Boolean(formik.errors.Observacion)}
+                        helperText={formik.touched.Observacion && formik.errors.Observacion}
+                        disabled={isDeleteMode}
+                        multiline  // Esta propiedad habilita el modo multilinea
+                        rows={4}    // Puedes ajustar el número de filas según tus necesidades
                     />
                 </DialogContent>
                 {/* FIC: Aqui van las acciones del usuario como son las alertas o botones */}

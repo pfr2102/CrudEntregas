@@ -3,7 +3,7 @@ import axios from "axios";
 export function UpdateOneProducto(Producto, idInstitutoOK, idNegocioOK, idEntregaOK, idDomicilio, idPresentaOK) {
     console.log("<<EJECUTA>> API <<UpdateOneShipping>> Requiere:", Producto);
     return new Promise((resolve, reject) => {
-        axios.put(`http://localhost:3020/api/pwa/shipping/subdocumentEPr/?IdInstitutoOK=${idInstitutoOK}&IdNegocioOK=${idNegocioOK}&IdEntregaOK=${idEntregaOK}&IdPresentaOK=${idPresentaOK}&IdDomicilioOK=${idDomicilio}`, Producto)
+        axios.put(`${import.meta.env.VITE_SHIPPINGS_URL}/subdocumentEPr/?IdInstitutoOK=${idInstitutoOK}&IdNegocioOK=${idNegocioOK}&IdEntregaOK=${idEntregaOK}&IdPresentaOK=${idPresentaOK}&IdDomicilioOK=${idDomicilio}`, Producto)
             .then((response) => {
                 console.log("<<RESPONSE>> UpdateOneShipping", Producto);
                 const data = response.data;

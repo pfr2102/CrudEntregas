@@ -1,7 +1,7 @@
 import axios from "axios";
 export function GetAllLabels() {
     return new Promise((resolve, reject) => {
-      axios.get('http://localhost:3020/api/pwa/etiquetas')
+      axios.get(import.meta.env.VITE_CAT_LABELS_URL)
         .then((response) => {
           const data = response.data;
         //console.log("getAllLabels()", data);

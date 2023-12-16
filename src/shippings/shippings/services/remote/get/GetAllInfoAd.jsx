@@ -3,7 +3,7 @@ import axios from "axios";
 export function GetAllSubdoc(IdInstitutoOK, IdNegocioOK, IdEntregaOK, subdocument) {
     return new Promise((resolve, reject) => {
       const queryParams = `?IdInstitutoOK=${IdInstitutoOK}&IdNegocioOK=${IdNegocioOK}&IdEntregaOK=${IdEntregaOK}&subdocument=${subdocument}`;
-      axios.get(`http://localhost:3020/api/pwa/shipping/subdocument${queryParams}`)
+      axios.get(`${import.meta.env.VITE_SHIPPINGS_URL}/subdocument${queryParams}`)
         .then((response) => {
           const data = response.data;
           if (!data.success) {
