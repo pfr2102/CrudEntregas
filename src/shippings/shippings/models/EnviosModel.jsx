@@ -1,4 +1,5 @@
 import { getDetailRow } from "../helpers/Utils";
+import { ProductosModel } from "./ProductosModel";
 
 export function EnviosModel() {
     let Envios = {
@@ -7,7 +8,7 @@ export function EnviosModel() {
         IdTipoMetodoEnvio: { type: String },
         CostoEnvio: { type: Number },
         info_ad: [],
-        productos: [],
+        productos: [ProductosModel],
         estatus: [],
         rastreos: {},
     };

@@ -11,8 +11,6 @@ import RefreshIcon from "@mui/icons-material/Refresh";
 //FIC: DB
 // import { GetAllSubdoc } from "../../services/remote/get/GetAllInfoAd";
 import { GetEnviosId } from "../../services/remote/get/GetEnviosId";
-import { GetAllOrders } from "../../services/remote/get/GetAllOrders";
-import { GetOneOrder } from "../../services/remote/get/GetOneOrders";
 
 //FEAK: MODALS
 import ProductosModal from "../ProductosModal";
@@ -39,7 +37,7 @@ const ProductosColumns = [
       size: 150, //small column
     },
     {
-      accessorKey: "DesPresentaPS",
+      accessorKey: "DesPresenta",
       header: "DesPresenta",
       size: 50, //small column
     },
@@ -77,22 +75,17 @@ const ProductosColumns = [
     // console.log(selectedShippingData);
 
     //Solicitud GET con los datos que hicimos clic en la tabla principal (selectedShippingData) y tabla de envios (selectedEnvioData)
-    // const instituto = selectedShippingData.IdInstitutoOK;
-    // const negocio = selectedShippingData.IdNegocioOK;
-    // const entrega = selectedShippingData.IdEntregaOK;
-    // const domicilio = selectedEnvioData.IdDomicilioOK;
-    const orden = selectedShippingData.IdOrdenOK
+    const instituto = selectedShippingData.IdInstitutoOK;
+    const negocio = selectedShippingData.IdNegocioOK;
+    const entrega = selectedShippingData.IdEntregaOK;
+    const domicilio = selectedEnvioData.IdDomicilioOK;
+    const orden = selectedShippingData.IdOrdenOK;
 
     useEffect(() => {
       async function fetchData() {
         try {
-          // const AllProductosData = await GetEnviosId(instituto, negocio, entrega, domicilio);
-          // console.log("INSTITUTO", instituto);
-          // console.log("NEGOCIO", negocio);
-          // console.log("ORDEN", orden);
-          const AllProductosData = await GetOneOrder('9001','1101',orden);
-          console.log("DATOS DEL GET SUBDOC OUYEA", AllProductosData.ordenes_detalle);
-          setProductosData(AllProductosData.ordenes_detalle);
+          const AllProductosData = await GetEnviosId(instituto, negocio, entrega, domicilio);
+          setProductosData(AllProductosData.productos);
           setLoadingTable(false);
         } catch (error) {
           console.error("Error al obtener los productos en useEffect de ProductosTable:", error);

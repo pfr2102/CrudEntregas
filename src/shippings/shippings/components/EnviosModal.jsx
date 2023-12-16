@@ -19,6 +19,7 @@ import { UpdateOneEnvio } from "../services/remote/put/UpdateOneEnvio";
 import { DeleteOneEnvio } from "../services/remote/del/DeleteOneEnvio";
 import { GetAllLabels } from "../services/remote/get/GetAllLabels";
 import { GetAllPersonas } from "../services/remote/get/GetAllPersonas";
+import { GetOneOrder } from "../services/remote/get/GetOneOrders";
 
 //FEAK: UUID (Objeto ID Universal)
 import { v4 as genID } from "uuid";
@@ -31,6 +32,7 @@ const EnviosModal = ({ EnviosShowModal, setEnviosShowModal, selectedShippingData
     const [EnvioValuesLabel, setEnvioValuesLabel] = useState([]);
     const [Envio2ValuesLabel, setEnvio2ValuesLabel] = useState([]);
     const [DomicilioOptions, setDomicilioOptions] = useState([]);
+    const [orderData, setOrderData] = useState([]);
 
     //FIC: en cuanto se abre la modal llama el metodo
     //que ejecuta la API que trae todas las etiquetas de la BD.
@@ -59,10 +61,34 @@ const EnviosModal = ({ EnviosShowModal, setEnviosShowModal, selectedShippingData
             // const DomicilioTypes = Personas.map(persona => persona.cat_personas_domicilios).flat();
             // setDomicilioValues(DomicilioTypes);
             console.log("DATOS DE ETIQUETAS", Labels);
+            // const prod = GetOneOrder(selectedShippingData.IdInstitutoOK, "1101", selectedShippingData.IdOrdenOK);
+            // setProductosOrdenes(prod);
+            // console.log("DATOOOOOOOOOOOOOOOOO", ProductosOrdenes);
         } catch (e) {
             console.error("Error al obtener Etiquetas para Tipos Metodo envio de info_ad:", e);
         }
     }
+
+    useEffect(() => {
+        // Verificar si hay un ID de orden en los datos de envío
+        if (selectedShippingData && selectedShippingData.IdOrdenOK) {
+            // Llamar a la API para obtener los datos de la orden
+            const fetchOrderData = async () => {
+                try {
+                    const orderDetails = await GetOneOrder("9001", "1101", selectedShippingData.IdOrdenOK);
+                    // Actualizar el estado con los datos de la orden
+                    setOrderData(orderDetails.ordenes_detalle);
+                    console.log("<<DATOS>>",orderData.ordenes_detalle);
+                    console.log("<<ID de Orden a sacar>>",selectedShippingData.IdOrdenOK);
+                } catch (error) {
+                    console.error("Error al obtener detalles de la orden:", error);
+                    // Puedes manejar el error según tus necesidades
+                }
+            };
+
+            fetchOrderData();
+        }
+    }, [selectedShippingData, setOrderData]);
 
     useEffect(() => {
         async function getDataSelectDomicilio() {
@@ -146,7 +172,7 @@ const EnviosModal = ({ EnviosShowModal, setEnviosShowModal, selectedShippingData
                     setMensajeExitoAlert("Envio eliminado correctamente");
                 }else{
                     //Usar EnviosValues para obtener los valores definidos del subdocumento en el archivo del mismo nombre
-                    const EnvioSubdocument = EnviosValues(values);
+                    // const EnvioSubdocument = EnviosValues(values);
                     const concat = Etiqueta2ValuesLabel.IdEtiquetaOK;
                     const idpaqueteria = `${concat}-${values.IdPaqueteriaOK}`;
                     const concat2 = Envio2ValuesLabel.IdEtiquetaOK;
@@ -156,6 +182,28 @@ const EnviosModal = ({ EnviosShowModal, setEnviosShowModal, selectedShippingData
                     const existingShippingId = selectedShippingData.IdEntregaOK;
                     const instituto = selectedShippingData.IdInstitutoOK;
                     const negocio = selectedShippingData.IdNegocioOK;
+
+                    // Parte del código para agregar productos al subdocumento EnviosSubdocument
+                    const productosSubdocument = orderData.map(item => ({
+                        IdProdServOK: item.IdProdServOK,
+                        IdPresentaOK: item.IdPresentaOK,
+                        DesProdServ: "",
+                        DesPresenta: item.DesPresentaPS, // Izq. nombres del otro equipo || Der. nuestros
+                        CantidadPed: item.Cantidad,
+                        CantidadEnt: 0,
+                    }));
+
+                    // Crear el objeto EnvioSubdocument con los datos de productos
+                    const EnvioSubdocument = {
+                        IdDomicilioOK: values.IdDomicilioOK,
+                        IdPaqueteriaOK: idpaqueteria,
+                        IdTipoMetodoEnvio: idenvio,
+                        CostoEnvio: values.CostoEnvio,
+                        info_ad: [],
+                        productos: productosSubdocument,
+                        estatus: [],
+                        rastreos: {},
+                    };
     
                     //Pasar los parametros al servicio de POST del archivo AddOneInfoAd.jsx
                     //En el mismo orden se pasa: Id del documento existente || Los valores que el usuario pone en el form y que se sacan
